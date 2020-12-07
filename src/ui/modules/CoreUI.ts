@@ -1,12 +1,8 @@
 import ICoreUI from 'ui/include/ICoreUI';
 
 class CoreUI implements ICoreUI {
-    constructor() {
-        throw new Error('Shit');
-    }
-
     async init() {
-        throw new Error('Not Implemented');
+        console.log('Hello World');
     }
 }
 
