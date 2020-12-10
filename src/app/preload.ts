@@ -15,3 +15,5 @@ window.utils = {};
 
 // @ts-ignore
 window.utils.path = require('path');
+
+export default {};

@@ -6,7 +6,7 @@ class Home extends React.Component {
     render() {
         return <>
             <Button text={"Hello World"} onClick={() => { console.log('yiss'); }}/>
-        </>
+        </>;
     }
 }
 

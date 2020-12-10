@@ -21,6 +21,8 @@ app.on('ready', () => {
         title: 'Notrino',
     });
     win.loadURL(startUrl);
+    win.webContents.openDevTools();
+    console.log('Hello World from app');
 });
 
 app.on('window-all-closed', function () {

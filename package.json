@@ -55,18 +55,20 @@
   "scripts": {
     "dev:bootstrap": "mkdirp src/ui/protocol/events && yarn dev:sync",
     "dev:sync": "rm -rf src/ui/protocol/events && cp -r src/app/include/events src/ui/protocol/events",
+    "dev:isSync": "diff src/ui/protocol/events src/app/include/events || echo Protocol mismatch! Please run yarn dev:sync",
     "dev:ui:start": "react-scripts start",
     "dev:ui:lint": "eslint ./src/ui/**",
     "dev:app:lint": "eslint ./src/app/**",
     "dev:lint": "eslint ./src/**",
     "dev:app:compile": "cd src/app/ && tsc -p . && yarn dev:sync",
     "dev:app:start": "set ELECTRON_START_URL=http://localhost:4001 && electron .",
-    "dev:app:restart": "yarn dev:app:compile && yarn dev:app:start",
+    "dev:app:launch": "yarn dev:app:compile && yarn dev:app:start",
     "ci:test": "yarn test --watchAll=false --coverage",
     "ci:build": "yarn build && yarn dev:app:compile && mkdirp ./build && cp -r ./src/app/build/ ./build/electron",
     "ci:package-for-windows": "electron-builder build --win -c.extraMetadata.main=build/electron/main.js --publish never",
     "ci:package-for-linux": "echo NOT_IMPLEMENTED",
     "ci:package-for-macos": "echo NOT_IMPLEMENTED",
+    "check": "yarn dev:lint && yarn test",
     "release": "yarn build && yarn compile-app && yarn build-electron && yarn package",
     "clean": "rm -rf build && rm -rf src/app/build && rm -rf dist && rm -rf coverage",
     "build": "react-scripts build",
@@ -74,8 +76,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test --watchAll=false --coverage --onlyChanged",
-      "pre-push": "yarn ci:test"
+      "pre-commit": "yarn dev:lint && yarn test --watchAll=false --coverage --onlyChanged",
+      "pre-push": "yarn dev:lint && yarn ci:test"
     }
   },
   "eslintConfig": {
@@ -110,7 +112,8 @@
       "src/ui/include/*",
       "src/app/preload.ts",
       "src/ui/protocol/*",
-      "src/ui/design-system/*"
+      "src/ui/design-system/*",
+      "src/common"
     ]
   }
 }

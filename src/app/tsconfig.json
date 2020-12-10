@@ -1,17 +1,16 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "noImplicitAny": true,
-      "sourceMap": false,
-      "outDir": "build",
-      "baseUrl": ".",
-      "paths": {
-        "*": ["node_modules/*"]
-      },
-      "skipLibCheck": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "outDir": "./build",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
     },
-    "include": [
-      "./**/*"
-    ],
-    "exclude": ["node_modules/*"]
-  }
+    "skipLibCheck": true,
+  },
+  "include": [
+    "./",
+  ],
+}
