@@ -2,7 +2,7 @@
   "name": "notrino",
   "version": "1.0.0",
   "productName": "Notrino",
-  "main": "src/app/build/main.js",
+  "main": "src/app/build/app/main.js",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
@@ -60,7 +60,8 @@
     "dev:ui:lint": "eslint ./src/ui/**",
     "dev:app:lint": "eslint ./src/app/**",
     "dev:lint": "eslint ./src/**",
-    "dev:app:compile": "cd src/app/ && tsc -p . && yarn dev:sync",
+    "dev:app:clean": "rm -rf src/app/build",
+    "dev:app:compile": "yarn dev:app:clean && cd src/app/ && tsc -p . && yarn dev:sync",
     "dev:app:start": "set ELECTRON_START_URL=http://localhost:4001 && electron .",
     "dev:app:launch": "yarn dev:app:compile && yarn dev:app:start",
     "ci:test": "yarn test --watchAll=false --coverage",
@@ -113,7 +114,8 @@
       "src/app/preload.ts",
       "src/ui/protocol/*",
       "src/ui/design-system/*",
-      "src/common"
+      "src/common",
+      "src/mocks"
     ]
   }
 }

@@ -11,9 +11,9 @@ const { ipcRenderer } = require('electron');
 window.ipcRenderer = ipcRenderer;
 
 // @ts-ignore
-window.utils = {};
-
-// @ts-ignore
-window.utils.path = require('path');
+window.utils = {
+    electronEmbedded: true,
+    path: require('path'),
+};
 
 export default {};

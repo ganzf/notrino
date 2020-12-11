@@ -1,18 +1,27 @@
 import MockChannel from 'mocks/Channel';
 import MockCore from 'mocks/Core';
+import MockStore from 'mocks/Store';
 import { NoteLoaded, SaveNote } from 'ui/protocol/events/Notes';
 import UICore from './UICore';
 
+// setupTest creates:
+// a real UICore for testing the UI logic
+// a mock channel for testing the events emitted by the UI
 const setupTest = () => {
     const app = new MockCore();
     const ui = new UICore();
     const channel = new MockChannel();
-    app.setUiChannel(channel);
+    const store = new MockStore();
+
+    ui.setStore(store);
     ui.setAppChannel(channel);
+    app.setUiChannel(channel);
+
     return {
         app,
         ui,
         channel,
+        store,
     }
 }
 
@@ -20,44 +29,47 @@ it('Instantiate UICore without error', () => {
     expect(() => {
         new UICore();
     }).not.toThrowError(Error);
-});
+})
 
 it('UICore.init()', () => {
     expect(() => {
         const core = new UICore();
         core.init();
     }).not.toThrowError(Error);
-});
+})
 
 it ('Should emit SaveNote event on saveNote()', async () => {
     const { app, ui, channel } = setupTest();
     await ui.saveNote('lala');
-    expect(channel.lastMessage).toBe(SaveNote.name)
+
+    expect(channel.lastMessage).toBe(SaveNote.name);
+    expect(channel.lastPayload).toStrictEqual({ content: 'lala' });
 })
 
 it ('Should not do anything when saving empty note', async () => {
     const { ui, channel } = setupTest();
     await ui.saveNote('');
+
+    expect(channel.lastMessage).toBe(undefined);
     expect(channel.messagesSent).toBe(0);
-});
+})
 
 // TODO: Improve me: Saving in memory is useless for the UI, it needs to be displayed to the end user.
 // A simple test of that, is at least to publish to the redux store.
 // This way, we guarantee that events coming from the app will result in data saved in the store.
 // We simply need to abstract the redux store with a MockClass and a Wrapper and an Interface (IUIStore, MockUIStore, UIStore)
 it('Should save note on NoteLoaded', async () => {
-    const { ui, channel } = setupTest();
+    const { ui, channel, store } = setupTest();
 
-    expect(ui.note).toBe(undefined);
+    expect(store.store.note).toBe(undefined);
 
     const noteLoadedEvent = new NoteLoaded('Hello From App');
-
     // Normally, only the app should send this event
     channel.send(noteLoadedEvent);
 
-    expect(ui.note).not.toBe(undefined);
-    expect(ui.note).toStrictEqual(noteLoadedEvent.payload.content);
-});
+    expect(store.store.note).not.toBe(undefined);
+    expect(store.store.note).toStrictEqual(noteLoadedEvent.payload.content);
+})
 
 // This is a core related expectation. If the mock classes does not implement the protocol, its your fault.
 // Therefore, i'm not so sure that this is a good test.

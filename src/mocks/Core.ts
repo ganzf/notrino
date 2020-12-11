@@ -1,6 +1,7 @@
 import IChannel from 'common/IChannel';
 import ICore from '../app/include/ICore';
 import { SaveNote } from '../app/include/events/Notes';
+import { NoteLoaded } from 'ui/protocol/events/Notes';
 
 class MockCore implements ICore {
     uiChannel?: IChannel;
@@ -18,7 +19,8 @@ class MockCore implements ICore {
     }
 
     onInit() {
-
+        const noteLoaded = new NoteLoaded('lala');
+        this.uiChannel?.send(noteLoaded);
     }
 
     onSaveNote(): boolean {
