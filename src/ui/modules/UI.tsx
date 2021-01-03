@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 
 import IUI from '../include/IUI';
 import Root from '../components/Root';
+import IUICore from '../include/IUICore';
+import ExceptionBoundary from '../components/ExceptionBoundary';
 
 class ReactUI implements IUI {
     render() {
@@ -15,7 +17,9 @@ class ReactUI implements IUI {
                 https://reactjs.org/docs/strict-mode.html
             */
             <React.StrictMode>
-                <Root />
+                <ExceptionBoundary>
+                    <Root />
+                </ExceptionBoundary>
             </React.StrictMode>,
             document.getElementById('root')
           );

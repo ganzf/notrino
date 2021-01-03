@@ -10,6 +10,7 @@ app.on('ready', () => {
         protocol: 'file:',
         slashes: true,
     });
+    
     win = new BrowserWindow({
         width: 1600 * 0.9,
         height: 900 * 0.9,

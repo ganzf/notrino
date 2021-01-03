@@ -4,14 +4,19 @@ import IUICore from 'ui/include/IUICore';
 import IStore from 'ui/include/IStore';
 import { NoteLoaded, SaveNote } from 'ui/protocol/events/Notes';
 import MockChannel from 'mocks/Channel';
+import ReduxStore from './ReduxStore';
 
 class UICore implements IUICore {
+    // Used to send and receive events from app
     appChannel?: IChannel;
+
+    // Used to store data for components to display
     store?: IStore;
 
     async init() {
         // @ts-ignore: window.utils is added by our electron app during preload (preload.ts)
         const embedded: boolean = window && window.utils && window.utils.electronEmbedded;
+        this.store = new ReduxStore();
 
         if (embedded) {
             console.log('Not using mocks');

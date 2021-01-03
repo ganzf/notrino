@@ -5,6 +5,9 @@ class Store implements IStore {
         __deleted__: [],
     };
 
+    getProvider() {
+        return this.store;
+    }
 
     set(path: string, value: any): void {
         this.store[path] = value;

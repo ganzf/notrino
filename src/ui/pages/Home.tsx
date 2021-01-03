@@ -1,13 +1,20 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import BasicEditor from 'ui/components/BasicEditor';
 import { Button } from '../../design-system';
+import core from '../index';
 
 // TODO: Replace parent with Page ?
-class Home extends React.Component {
+class Home extends React.Component<any> {
     render() {
-        return <>
-            <Button text={"Hello World"} onClick={() => { console.log('yiss'); }}/>
-        </>;
+        return <div className='page'>
+            <BasicEditor />
+        </div>;
     }
 }
 
-export default Home;
+const mapState = (state: any) => ({
+    notes: state.global.notes,
+})
+
+export default connect(mapState)(Home);
