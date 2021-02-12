@@ -1,0 +1,46 @@
+.new-note-container {
+  opacity: 1;
+  background: white;
+  color: black;
+  z-index: 1;
+  padding: 25px;
+}
+
+.new-note-type-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #eeeeff;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background 0.2s ease, border 0.2s ease;
+  border: 2px solid white;
+}
+
+.new-note-type-button p {
+  padding-left: 5px;
+  font-size: 0.9rem;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.new-note-type-button b {
+  color: dodgerblue;
+  font-size: 1.1rem;
+}
+
+.new-note-type-button small {
+  background-color: dodgerblue;
+  padding: 4px;
+  border-radius: 4px;
+  margin-left: 5px;
+  color: white;
+}
+
+.new-note-type-button:hover {
+  cursor: pointer;
+  background-color: #ccccff;
+  border-color: dodgerblue;
+}

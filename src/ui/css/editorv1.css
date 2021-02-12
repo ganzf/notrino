@@ -1,0 +1,16 @@
+.editor {
+  background: grey;
+  width: 100%;
+  height: 100%;
+}
+
+.editor .line-container:nth-child(odd) {
+  background: aliceblue;
+}
+
+.line-container {
+  background: lightgray;
+  color: black;
+  padding: 5px;
+  width: 100%;
+}

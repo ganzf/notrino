@@ -25,6 +25,10 @@ class ReduxStore implements IStore {
           return dotprop.set(state, path, value);
         }
       }
+      if (action.type === 'unset') {
+        const { path } = action.payload;
+        return dotprop.delete(state, path);
+      }
       return state;
     }
     
@@ -52,7 +56,12 @@ class ReduxStore implements IStore {
   }
 
   remove(path: string): boolean {
-    throw new Error('Method not implemented.');
+    this.dispatch({
+      type: 'unset', payload: {
+        path
+      }
+    });
+    return true;
   }
 }
 

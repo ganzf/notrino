@@ -1,3 +1,5 @@
+import { start } from "repl";
+
 function createRange(node: any, chars: any, range: any = undefined): any {
   if (!range) {
     range = document.createRange()
@@ -66,7 +68,6 @@ export function getCurrentCursorPosition(parentId: any) {
     if (isChildOf(selection.focusNode, parentId)) {
       node = selection.focusNode;
       charCount = selection.focusOffset;
-      console.log({ node, charCount, selection });
       while (node) {
         if (node.id === parentId) {
           break;
@@ -102,13 +103,13 @@ export function moveCaretRight(id = 'editor') {
     const blankNode = document.createElement('span');
     blankNode.innerHTML = String.fromCharCode(160);
     insertAfter(focus.parentNode, blankNode);
-    
+
     range = document.createRange();
     range.selectNode(blankNode);
     range.setStart(blankNode, 0);
     range.setEnd(blankNode, 1);
   } else {
-    
+
   }
 
   if (range) {
@@ -117,4 +118,97 @@ export function moveCaretRight(id = 'editor') {
     selection.addRange(range);
     selection.collapseToEnd();
   }
+}
+
+export function changeTagOfNode(node: HTMLHtmlElement, tag: string) {
+  const newElement = document.createElement(tag);
+  newElement.innerHTML = node.innerHTML;
+  node.replaceWith(newElement);
+  return newElement;
+}
+
+export function getCaretPoint() {
+  const sel: any = window.getSelection();
+  const node: any = sel?.focusNode;
+
+  if (node && node.nodeType === Node.TEXT_NODE) {
+    var span = document.createElement('span');
+    // node.parentNode.insertBefore(span, node);
+    // span.appendChild(node);
+    const rect = span.getBoundingClientRect();
+    console.log('WithSpan', { rect, span, sel, r: sel.getRangeAt(0) });
+  } else {
+    const rect = node.getBoundingClientRect();
+    console.log('Without span', { rect, r: sel.getRangeAt(0), sel });
+  }
+}
+
+export function getCaretTopPoint() {
+  return ;
+  const sel: any = document.getSelection()
+  const r = sel.getRangeAt(0)
+  let rect
+  let r2
+  // supposed to be textNode in most cases
+  // but div[contenteditable] when empty
+  const node = r.startContainer
+  const offset = r.startOffset
+  console.log({ node, offset, r });
+  if (offset > 0) {
+    // new range, don't influence DOM state
+    r2 = document.createRange()
+    r2.setStart(node, (offset - 1))
+    r2.setEnd(node, offset)
+    // https://developer.mozilla.org/en-US/docs/Web/API/range.getBoundingClientRect
+    // IE9, Safari?(but look good in Safari 8)
+    rect = r2.getBoundingClientRect()
+    console.log('Case 1', { rect });
+    return { left: rect.right, top: rect.top }
+  } else if (offset < node.length) {
+    r2 = document.createRange()
+    // similar but select next on letter
+    r2.setStart(node, offset)
+    r2.setEnd(node, (offset + 1))
+    rect = r2.getBoundingClientRect()
+    console.log('case 2: ', { rect });
+    return { left: rect.left, top: rect.top }
+  } else { // textNode has length
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element.getBoundingClientRect
+
+    if (!node.getBoundingClientRect) {
+      var span = document.createElement('span');
+      node.parentNode.insertBefore(span, node);
+      span.appendChild(node);
+      rect = span.getBoundingClientRect();
+      console.log('WithSpan', { rect });
+    } else {
+      rect = node.getBoundingClientRect();
+      console.log('WithoutSpan', { rect });
+    }
+    // const styles = getComputedStyle(node)
+    // const lineHeight = parseInt(styles.lineHeight)
+    // const fontSize = parseInt(styles.fontSize)
+    // roughly half the whitespace... but not exactly
+    // const delta = (lineHeight - fontSize) / 2
+    const delta = 0;
+    return { left: rect.left, top: (rect.top + (isNaN(delta) ? 0 : delta)) }
+  }
+}
+
+export function querySelectorUp(startNode: ChildNode | Node, predicate: (node: any) => boolean): boolean | Node {
+  if (!startNode) {
+    return false;
+  }
+  if (startNode && !startNode.parentNode) {
+    if (predicate(startNode)) {
+      return startNode;
+    }
+  }
+  if (startNode && predicate(startNode)) {
+    return startNode;
+  }
+  if (startNode.parentNode) { 
+    return querySelectorUp(startNode.parentNode, predicate);
+  }
+  return false;
 }

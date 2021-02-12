@@ -1,5 +1,6 @@
 .basic-editor-container {
-  width: 50%;
+  width: 100%;
+  max-width: calc(21cm + 20px);
   height: calc(100% - 35px);
   margin-top: 10px;
   margin-bottom: 10px;
@@ -7,9 +8,96 @@
   color: #cccccc;
   padding: 10px;
   border-radius: 10px;
-  margin-left: 25%;
-  margin-right: 25%;
+  font-size: 12px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 5px;
+}
+
+/* Line style */
+.basic-editor-container > div {
+  color: #cccccc;
+}
+
+.debug-html-editor {
+  width: 60%;
+  font-size: 12px;
+  height: calc(100% - 35px);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: #313131;
+  color: #cccccc;
+  padding: 10px;
+  border-radius: 10px;
+  margin-left: 10%;
+  margin-right: 10%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.autocompletebox {
+  position: absolute;
+  border: 1px solid dodgerblue;
+  height: 20px;
+}
+
+#caret-anchor {
+  width: 1px;
+  background: dodgerblue;
+  height: 12px;
+  display: inline-block;
+  transform: translateY(2px);
+}
+
+.caret-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #898989;
+  border: 1px solid dodgerblue;
+  border-radius: 2px;
+  min-width: 100px;
+  height: 20px;
+}
+
+.basic-editor-container h1 {
+  color: white;
+  font-size: 1.5rem;
+  border-bottom: 1px solid white;
+}
+
+.basic-editor-container h2 {
+  color: #eeeeee;
+  font-size: 1.3rem;
+  border-bottom: 1px dashed #666666;
+}
+
+.basic-editor-container h3 {
+  color: #dddddd;
+  font-size: 1rem;
+}
+
+.basic-editor-container h4 {
+  color: #cccccc;
+  font-size: 0.9rem;
+}
+
+.basic-editor-container code {
+  padding: 4px;
+  background: #090909;
+  color: #eeeeee;
+  border-radius: 4px;
+}
+
+.basic-editor-container pre code {
+  padding: 4px;
+  background: #656565;
+  color: #eeeeee;
+  border-radius: 4px;
+  min-height: 16px;
+  display: block;
+}
+
+.basic-editor-container {
+  line-height: 20px;
 }
 
 .basic-editor-container .inline-var {
@@ -17,9 +105,26 @@
   padding-left: 4px;
   padding-right: 4px;
   border-radius: 4px;
+  margin-right: 2px;
+  margin-left: 2px;
   background: lightgray;
   color: dodgerblue;
   transform: translateY(1px);
+}
+
+.basic-editor-container .inline-var-name {
+  color: red !important;
+}
+
+.basic-editor-container .inline-var:focus {
+  background: red;
+}
+
+.basic-editor-container img {
+  display: block;
+  margin: 6px;
+  margin-left: 5%;
+  max-width: 90%;
 }
 
 .variables-inspector {
@@ -38,27 +143,6 @@
   color: rgb(101, 101, 255);
 }
 
-.basic-editor-area {
-  height: 100%;
-  font-size: 14px;
-  font-weight: bold;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
-.basic-editor-area div {
-  color: dodgerblue;
-  display: inline-block;
-  padding: 2px;
-  margin: 2px;
-  background: #131313;
-}
-
-.basic-editor-area:focus {
-  border: none;
-  outline: none;
-}
-
 .note-outline {
   padding: 4px;
   border-radius: 4px;
@@ -68,5 +152,36 @@
   position: absolute;
   left: 20px;
   top: 10px;
+  
+}
+
+.boolean-value { 
+  padding: 4px;
+  text-transform: uppercase;
+}
+
+.boolean-value.true {
+  color: green;
+}
+
+.boolean-value.false {
+  color: crimson;
+}
+
+.people-value {
+  padding-left: 2px;
+  text-transform: capitalize;
+  color: black;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.basic-editor-container .alias {
+  display: inline-block;
+}
+
+.basic-editor-container > div > span {
   
 }

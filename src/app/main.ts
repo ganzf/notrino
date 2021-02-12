@@ -4,6 +4,8 @@ import * as url from 'url';
 
 let win: BrowserWindow;
 
+process.env.ELECTRON_START_URL = 'http://localhost:4002';
+
 app.on('ready', () => {
     const startUrl = process.env.ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '../index.html'),
@@ -23,7 +25,7 @@ app.on('ready', () => {
     });
     win.loadURL(startUrl);
     win.webContents.openDevTools();
-    console.log('Hello World from app');
+    console.log('Hello World from app', { startUrl, env: process.env.ELECTRON_START_URL });
 });
 
 app.on('window-all-closed', function () {
