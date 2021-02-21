@@ -14,3 +14,23 @@
   padding: 5px;
   width: 100%;
 }
+
+.editor-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.content-editable {
+  width: 80%;
+  height: calc(100% - 10px);
+  background: #313131;
+  color: ghostwhite;
+  padding: 6px;
+}
+
+.focus-line {
+  background: red;
+}

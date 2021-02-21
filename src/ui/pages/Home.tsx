@@ -55,8 +55,9 @@ class Home extends React.Component<any> {
                 }
             </div>
             <div className='main-content'>
-                <BasicEditor />
-                {/* <EditorV1 /> */}
+                {/*<BasicEditor />
+                */}
+                <EditorV1 />
             </div>
             <div className='right-side'>
                 <p>Name</p>

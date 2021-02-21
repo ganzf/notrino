@@ -1,5 +1,18 @@
 import { start } from "repl";
 
+export function findElementById(dom: HTMLHtmlElement | ChildNode, id: string) {
+    let elem = undefined;
+    // @ts-ignore
+    dom.childNodes.forEach((el: HTMLDivElement) => {
+      if (el.id === id) {
+        elem = el;
+      } else if (el.childNodes.length > 0) {
+        findElementById(el, id);
+      }
+    });
+    return elem;
+}
+
 function createRange(node: any, chars: any, range: any = undefined): any {
   if (!range) {
     range = document.createRange()
@@ -207,7 +220,7 @@ export function querySelectorUp(startNode: ChildNode | Node, predicate: (node: a
   if (startNode && predicate(startNode)) {
     return startNode;
   }
-  if (startNode.parentNode) { 
+  if (startNode.parentNode) {
     return querySelectorUp(startNode.parentNode, predicate);
   }
   return false;

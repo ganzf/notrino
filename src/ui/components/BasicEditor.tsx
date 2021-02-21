@@ -5,13 +5,13 @@ import ContentEditable from 'react-contenteditable';
 import { start } from 'repl';
 import { getCurrentCursorPosition, setCurrentCursorPosition, moveCaretRight, changeTagOfNode, getCaretTopPoint, getCaretPoint, querySelectorUp } from '../utils/editor';
 import './BasicEditor.css';
+import { v4 as uuid } from 'uuid';
 import mousetrap from 'mousetrap';
 import { connect, Provider } from 'react-redux';
 import { timeStamp } from 'console';
 import { Button } from 'design-system';
 import InlineAliasDisplay from './InlineAliasDisplay';
 import core from 'ui';
-import { v4 as uuid } from 'uuid';
 import ReactDOMServer from 'react-dom/server';
 
 /* import 'codemirror/lib/codemirror.css';
@@ -51,6 +51,7 @@ class BasicEditor extends React.Component<Props, State> {
   };
 
   reactVDOM: Element = document.createElement('div');
+  reactVirtualContainers: Element[] = [];
 
   constructor(props: Props) {
     super(props);
@@ -379,9 +380,9 @@ class BasicEditor extends React.Component<Props, State> {
         // Generate a random unique identifier
         // const uuid = uuid();
         // ${number a = 12} would be nice
-        // Are unnamed variables allowed ? 
+        // Are unnamed variables allowed ?
         // Can you for example, write ${mdr} => type is default to string, value is mdr and there is no name.
-        // What can you do with this ? not much.. 
+        // What can you do with this ? not much..
         // You can at least write ${laugh=mdr} => name is laugh, value is mdr. and the focus should be on mdr
 
         const name = match[1].split('=')[0];
@@ -389,7 +390,7 @@ class BasicEditor extends React.Component<Props, State> {
         faceValue = faceValue.replace(`${name}=`, '');
         // copy = copy.replace(match[0], `<div id="${id}"></div>`);
 
-        // ! A timeout is required for mounting the react component. No idea why. 
+        // ! A timeout is required for mounting the react component. No idea why.
         setTimeout(() => {
           const container = document.getElementById(id);
           if (container) {
@@ -446,6 +447,11 @@ class BasicEditor extends React.Component<Props, State> {
     const lines = this.getLines(editor);
     const list: any[] = [];
     lines?.forEach((line: ChildNode, linenbr: number) => {
+      const el: HTMLHtmlElement = line as HTMLHtmlElement;
+      if (el.className.includes(' alias-definition')) {
+        el.className = el.className.replace(' alias-definition', '');
+      }
+
       const content = line.childNodes[0] as Element;
       console.log({ content });
       if (content && content.tagName === 'SPAN') {
@@ -454,6 +460,10 @@ class BasicEditor extends React.Component<Props, State> {
         if (text) {
           const match = varDefinitionReg.exec(text);
           if (match) {
+            // @ts-ignore
+            if (!line.className.includes(' alias-definition')) {
+              (line as HTMLHtmlElement).className += ' alias-definition';
+            }
             const name = match[1];
             const value = match[2]
             list.push({ linenbr, name, value, line, content });
@@ -484,6 +494,8 @@ class BasicEditor extends React.Component<Props, State> {
 
         // ! For each alias, look for alias.name in htmlStr and replace with a variable container
         aliases.forEach((alias: any) => {
+          // Il faudrait checker alias.name non pas dans htmlStr, mais plutot dans les textNode qui ne sont pas des
+          // elements react. Ni d'ailleurs, dans les balises HTML. Donc a voir, peut etre tester dans html.innerText ?
           if (linenbr > alias.linenbr && htmlStr.includes(alias.name)) {
             const element = document.createElement('div');
             element.innerHTML = htmlStr;
@@ -501,19 +513,23 @@ class BasicEditor extends React.Component<Props, State> {
                   if (text === alias.name) {
                     const variableContainer = document.createElement('div');
                     variableContainer.id = uuid();
+                    variableContainer.innerHTML = "<reactplaceholder>" + alias.name + "</reactplaceholder>&nbsp;";
                     variableContainer.className = `alias alias-${alias.name}`;
-                    variableContainer.addEventListener("re-render-" + variableContainer.id, (renderEvent: CustomEvent) => { 
+                    document.addEventListener("re-render-" + variableContainer.id, (renderEvent: any) => {
+                      console.log('React parent component was re-rendered');
                       const { html } = renderEvent.detail;
                       const el = document.getElementById(variableContainer.id);
                       if (el) {
                         // Pas possible, il faut quand meme update le this.state.html non ?
                         el.innerHTML = html;
+                        // Mais si on update dans un DOM qui parse le this.state.html,
+                        // puis qu'on serialize en faisant this.state.html = this.fakeDom.innerHTML
+                        // ca devrait passer
                       }
                     });
                     // variableContainer.contentEditable = "false";
                     const diff = alias.name.length - alias.value.length;
                     // cursorChange = diff + 1;
-                    // variableContainer.innerHTML = "<span>" + variableContainer.id + "</span>";
                     return variableContainer;
                   } else {
                     const span = document.createElement('span');
@@ -525,7 +541,7 @@ class BasicEditor extends React.Component<Props, State> {
                 // nodes.push(document.createTextNode("\u200b"));
 
 
-                // replace itself with nodes 0, 
+                // replace itself with nodes 0,
                 // then adds all the nodes as sibling
                 let i = nodes.length - 1;
                 while (i >= 0) {
@@ -546,6 +562,50 @@ class BasicEditor extends React.Component<Props, State> {
                 // the container has not been filled with a component yet
                 // console.log('Candidate for mounting alias component', { container, str: container.innerHTML, isEmpty: container.innerHTML === '' })
                 console.log({ container, inner: container.innerHTML });
+
+                if (container.innerHTML.includes('reactplaceholder')) {
+                  const rect = container.getBoundingClientRect();
+
+
+                  console.log('Detected a react placeholder with id', container.id );
+                  let Component: any;
+                  let props: any = {};
+                  Component = InlineAliasDisplay;
+                  props.alias = alias;
+                  const uid = container.id;
+                  props.uuid = uid;
+                  props.key = uid;
+                  props.rect = rect;
+                  if (Component) {
+                    const ContentElement = React.createElement(Component, props);
+                    const ProviderElement = React.createElement(Provider, { store: core.store!!.getProvider() }, ContentElement);
+
+                    // React can keep track of a react component mounted to a "fake" or "virtual" dom element.
+                    // A virtual of fake dom element is one created with document.createElement, not related to the root tree
+                    // of the current webpage.
+                    // Therefore, all of our react components linked to a div in the editor DOM are contained
+                    // in other divs not related to the application DOM tree.
+                    // Let's test onClick functions.
+                    const virtualContainer = this.reactVirtualContainers.find((el: Element) => el.id === props.uuid);
+                    if (virtualContainer) {
+                      ReactDOM.render(ProviderElement, virtualContainer);
+
+                    } else {
+                      const newVirtualContainer = document.createElement('div');
+                      newVirtualContainer.id = props.uuid;
+                      const editorReactRoot = document.getElementById('editor-react-root');
+                      editorReactRoot?.appendChild(newVirtualContainer);
+                      ReactDOM.render(ProviderElement, newVirtualContainer);
+                      this.reactVirtualContainers.push(newVirtualContainer);
+                    }
+
+
+                    // const componentAsString = ReactDOMServer.renderToString(ProviderElement);
+                    // console.log({ componentAsString });
+                    console.log('MOUTING A INLINEALIASDISPLAY for ', { props, container });
+                }
+              }
+
                 if (container.innerHTML === '') {
                   let Component: any;
                   let props: any = {};
@@ -559,7 +619,7 @@ class BasicEditor extends React.Component<Props, State> {
                     const ProviderElement = React.createElement(Provider, { store: core.store!!.getProvider() }, ContentElement);
                     // ReactDOM.render(<Provider store={core.store!!.getProvider()}><Component key={uid} {...props} /></Provider>, container);
                     ReactDOM.render(ProviderElement, this.reactVDOM);
-                  
+
                     // const componentAsString = ReactDOMServer.renderToString(ProviderElement);
                     // console.log({ componentAsString });
                     console.log('MOUTING A INLINEALIASDISPLAY for ', { props, container });
@@ -590,11 +650,11 @@ class BasicEditor extends React.Component<Props, State> {
          theme: 'material',
          lineNumbers: true
        }}
-       onBeforeChange={(editor: any, data: any, value: any ) => { 
+       onBeforeChange={(editor: any, data: any, value: any ) => {
          // @ts-ignore
          this.setState({ value });
        }}
-       onChange={(editor: any, data: any, value: any) => { 
+       onChange={(editor: any, data: any, value: any) => {
          // @ts-ignore
          this.setState({ value });
        }}
@@ -627,6 +687,7 @@ class BasicEditor extends React.Component<Props, State> {
 
     return (
       <>
+        <div id="editor-react-root"></div>
         {/*         { false && <div className='caret-indicator' style={{ left: this.state.caret.x, top: `${this.state.caret.y}px` }}>
           autocomplete here
         </div> }
