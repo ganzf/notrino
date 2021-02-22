@@ -13,6 +13,26 @@ export function findElementById(dom: HTMLHtmlElement | ChildNode, id: string) {
     return elem;
 }
 
+export function preventEvent(event: any) {
+  if (event.nativeEvent) {
+    event.nativeEvent.stopPropagation();
+    event.nativeEvent.preventDefault();
+  }
+}
+
+export function getCurrentEditorLine() {
+  const focusNode = window.getSelection()?.focusNode;
+  if (focusNode) {
+    const isInsideEditor = querySelectorUp(focusNode, (n: any) => n.id === 'editor');
+    if (isInsideEditor) {
+      const line = querySelectorUp(focusNode, (n: any) => n.classList && n.classList.contains('line'));
+      console.log({ line });
+      return line;
+    }
+  }
+  return null;
+}
+
 function createRange(node: any, chars: any, range: any = undefined): any {
   if (!range) {
     range = document.createRange()

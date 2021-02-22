@@ -1,3 +1,4 @@
+import { start } from 'repl';
 import AEditorModule from './AEditorModule';
 
 export default class MarkdownMod implements AEditorModule {
@@ -5,13 +6,24 @@ export default class MarkdownMod implements AEditorModule {
 
     applyTitles(dom: HTMLDivElement, context: any) {
         context.lines && context.lines.forEach((line: HTMLDivElement) => {
-            const startsWithHash = line.textContent?.match(/\#+\s/);
-            if (startsWithHash) {
-                const titleLevel = line.textContent?.split('#').filter((it: string) => it === "").length;
-                const isTitle = line.firstChild?.nodeName === `H${titleLevel}`;
-                if (!isTitle) {
-                    console.log({ isTitle, line });
-                    line.innerHTML = `<h${titleLevel}>` + line.innerHTML + `</h${titleLevel}>`;
+            // ! Do not apply markdown styling to current editing line
+            if (!context.currentLine || context.currentLine && line.id !== context.currentLine.id) {
+                const startsWithHash = line.textContent?.match(/^\#+\s[\w\W]+/);
+                const startsWithBulletItem = line.textContent?.match(/^\s?[o\+]\s[\w\W]+/);
+                if (startsWithHash) {
+                    const titleLevel = line.textContent?.split('#').filter((it: string) => it === "").length;
+                    const isTitle = line.firstChild?.nodeName === `H${titleLevel}`;
+                    if (!isTitle) {
+                        line.innerHTML = line.innerHTML.replace(/^#+/, '');
+                        line.innerHTML = `<h${titleLevel}>` + line.innerHTML + `</h${titleLevel}>`;
+                        line.classList.add('title');
+                    }
+                }
+
+                if (startsWithBulletItem) {
+                    line.innerHTML = line.innerHTML.replace(/^\s?[o\+]/, '');
+                    line.classList.add('todo-checkbox');
+                    line.innerHTML = '<input type="checkbox" id="checkbox-' + line.id + '">' + line.innerHTML;
                 }
             }
         });
@@ -19,16 +31,5 @@ export default class MarkdownMod implements AEditorModule {
 
     apply(dom: HTMLDivElement, context: any) {
         this.applyTitles(dom, context);
-        context.lines && context.lines.forEach((line: HTMLDivElement) => {
-            if (line.className.includes(' focus-line')) {
-                line.className = line.className.replace(' focus-line', '');
-            }
-        })
-        if (context.currentLine) {
-            const line = context.currentLine as HTMLDivElement;
-            if (!line.className.includes(' focus-line')) {
-                line.className += ' focus-line'
-            }
-        }
     }
 }

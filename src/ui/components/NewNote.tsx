@@ -59,7 +59,7 @@ class NewNote extends React.Component<any, any> {
         document.getElementById('text-input-editor-title')?.focus();
       }}>
         <div>
-          <b><FontAwesomeIcon icon={faFile} /> {noteType.name}</b><br/>
+        <b><FontAwesomeIcon icon={faFile} /> {noteType.name}</b><br/>
           <p>{noteType.description}</p>
         </div>
         <div>

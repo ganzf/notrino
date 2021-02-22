@@ -21,16 +21,26 @@
   display: flex;
   justify-content: center;
   margin-top: 10px;
+  position: relative;
 }
 
 .content-editable {
-  width: 80%;
+  width: 100%;
   height: calc(100% - 10px);
   background: #313131;
   color: ghostwhite;
   padding: 6px;
 }
 
-.focus-line {
-  background: red;
+#editor > div {
+  background: rgba(45, 45, 45, 0);
+  width: 100%;
+}
+
+.focus-line.line {  
+  background: rgba(68, 68, 68, 0.9) !important;
+}
+
+.focus-line.line.title {
+  background: rgba(68, 100, 68, 0.9) !important;
 }

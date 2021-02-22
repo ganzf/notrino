@@ -1,6 +1,7 @@
 import AEditorModule from './AEditorModule';
 import { v4 as uuid } from 'uuid';
 import { isDoStatement } from 'typescript';
+import { title } from 'process';
 
 let index = 1;
 
@@ -22,10 +23,14 @@ export default class LinterMod implements AEditorModule {
         const ids: string[] = [];
 
         context.lines.forEach((line: HTMLDivElement) => {
-            if (!line.id || ids.includes(line.id)) {
+            if (!line.id || ids.includes(line.id) || line.id === 'newline') {
                 line.id = uuid();
+                if (!line.classList.contains('line')) {
+                    line.classList.add('line');
+                }
             }
             ids.push(line.id);
         })
+
     }
 }
