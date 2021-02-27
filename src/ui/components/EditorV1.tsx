@@ -21,14 +21,15 @@ const mapStateToProps = (state: any) => ({
 class EditorV1 extends React.Component<Props, any> {
   contentEditable: any;
   modules: AEditorModule[] = [
-    new CursorMod(),
+/*     new CursorMod(), */
     new LinterMod(),
-    new MarkdownMod(),
+/*     new MarkdownMod(), */
   ];
   lastContext: any = {};
 
   styleWorker: any;
   shouldRefreshStyle: boolean = false;
+  debug: any = {};
 
   constructor(props: Props) {
     super(props);
@@ -58,10 +59,12 @@ class EditorV1 extends React.Component<Props, any> {
       selection: window.getSelection(),
     };
     // Sort by priorities
+    let activeModules = 0;
     this.modules.sort((a: any, b: any) => a.priority - b.priority).forEach((mod: AEditorModule) => {
       mod.apply(dom, context);
-      console.log({ context });
+      activeModules += 1;
     });
+    this.debug.activeModules = activeModules;
     this.lastContext = context;
     this.setState({ html: dom.innerHTML }, () => {
       this.shouldRefreshStyle = true;
@@ -96,7 +99,7 @@ class EditorV1 extends React.Component<Props, any> {
       <div className='editor-container'>
         <ContentEditable
           onClick={() => {
-            this.shouldRefreshStyle = true;
+            // this.shouldRefreshStyle = true;
           }}
           id='editor'
           className='content-editable'
@@ -116,7 +119,7 @@ class EditorV1 extends React.Component<Props, any> {
               // Restyle even if there's been no change in the EDITOR !
               // instead of applying a new this.state.html
               // apply a different style to the dom directly
-              this.shouldRefreshStyle = true;
+              // this.shouldRefreshStyle = true;
             }
           }}
           onKeyDown={(evt: any) => {
@@ -139,8 +142,8 @@ class EditorV1 extends React.Component<Props, any> {
 
             }
             if (isEnter) {
-              shouldUpdate = true;
-              const currentLine = getCurrentEditorLine() as HTMLDivElement;
+              shouldUpdate = false;
+/*               const currentLine = getCurrentEditorLine() as HTMLDivElement;
               const isFocussingText = window.getSelection()?.focusNode?.nodeType === Node.TEXT_NODE;
               
               if (currentLine) {
@@ -169,17 +172,17 @@ class EditorV1 extends React.Component<Props, any> {
 
                 sel?.removeAllRanges()
                 sel?.addRange(range)
-              }
+              } */
             }
             if (shouldUpdate) {
-              console.log('KEY DOWN FORCE UPDATE');
-              this.forceUpdateDOM();
-              this.shouldRefreshStyle = true;
+              // console.log('KEY DOWN FORCE UPDATE');
+              // this.forceUpdateDOM();
+              // this.shouldRefreshStyle = true;
             }
           }}
         />
         <div style={{ position: 'absolute', width: '100%', zIndex: 10, background: 'rgba(45, 45, 45, 0.8)', bottom: `5px`, color: 'black' }}>
-          Debug here:
+          {JSON.stringify(this.debug)}
         </div>
       </div>
     )

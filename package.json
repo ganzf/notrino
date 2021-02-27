@@ -4,6 +4,8 @@
   "productName": "Notrino",
   "main": "src/app/build/app/main.js",
   "dependencies": {
+    "@editorjs/editorjs": "^2.19.1",
+    "@editorjs/header": "^2.6.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.11",
@@ -11,6 +13,7 @@
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.5.0",
+    "@types/editorjs__header": "^2.6.0",
     "@types/jest": "^26.0.14",
     "@types/mousetrap": "^1.6.5",
     "@types/node": "^14.11.5",

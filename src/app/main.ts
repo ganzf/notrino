@@ -4,7 +4,7 @@ import * as url from 'url';
 
 let win: BrowserWindow;
 
-process.env.ELECTRON_START_URL = 'http://localhost:4002';
+process.env.ELECTRON_START_URL = 'http://localhost:4001';
 
 app.on('ready', () => {
     const startUrl = process.env.ELECTRON_START_URL || url.format({

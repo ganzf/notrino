@@ -1,0 +1,11 @@
+#editor-holder {
+  width: 100%;
+  height: calc(100% - 20px);
+  background: #313131;
+  color: white;
+}
+
+#editor-holder .cdx-block {
+  background: #313131;
+  color: white;
+}

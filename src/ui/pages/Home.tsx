@@ -3,6 +3,7 @@ import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import BasicEditor from 'ui/components/BasicEditor';
 import EditorV1 from 'ui/components/EditorV1';
+import EditorV2 from 'ui/components/EditorV2';
 import NewNote from 'ui/components/NewNote';
 import { Button } from '../../design-system';
 import core from '../index';

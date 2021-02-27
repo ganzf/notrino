@@ -8,6 +8,7 @@ let index = 1;
 export default class LinterMod implements AEditorModule {
     priority = 0;
 
+    // This module tags with the right classnames every line in the editor
     apply(dom: HTMLDivElement, context: any) {
         // Avoids the starting issue of a floating text node inside the editor
         if (dom.firstChild?.nodeName === '#text') {
@@ -19,9 +20,22 @@ export default class LinterMod implements AEditorModule {
         }
 
         context.lines = dom.querySelectorAll('div');
-
-        const ids: string[] = [];
-
+        context.lines.forEach((line: HTMLDivElement) =>  {
+            // First, verify is a classList can be applied
+            const text = line.textContent;
+            const aliasReg = new RegExp(/^\$[\w\W]+=[\w\W]+$/);
+            if (text?.match(aliasReg)) {
+                line.classList.add('inline-alias-definition');
+            } else {
+                if (line.classList.contains('inline-alias-definition')) {
+                    line.classList.remove('inline-alias-definition');
+                }
+            }
+        })
+/* 
+        const ids: string[] = []; */
+/* 
+        // This causes bad side effects with return lines. maybe avoid doing it like this
         context.lines.forEach((line: HTMLDivElement) => {
             if (!line.id || ids.includes(line.id) || line.id === 'newline') {
                 line.id = uuid();
@@ -30,7 +44,7 @@ export default class LinterMod implements AEditorModule {
                 }
             }
             ids.push(line.id);
-        })
+        }) */
 
     }
 }
