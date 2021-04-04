@@ -5,6 +5,7 @@ import BasicEditor from 'ui/components/BasicEditor';
 import EditorV1 from 'ui/components/EditorV1';
 import EditorV2 from 'ui/components/EditorV2';
 import NewNote from 'ui/components/NewNote';
+import SplitEditor from 'ui/components/SplitEditor';
 import { Button } from '../../design-system';
 import core from '../index';
 
@@ -56,11 +57,9 @@ class Home extends React.Component<any> {
                 }
             </div>
             <div className='main-content'>
-                {/*<BasicEditor />
-                */}
-                <EditorV1 />
+                <SplitEditor />
             </div>
-            <div className='right-side'>
+            {/* <div className='right-side'>
                 <p>Name</p>
                 {textInput('name')}
                 <p>Title</p>
@@ -78,7 +77,7 @@ class Home extends React.Component<any> {
                     core.store?.remove('editor.tags');
                     core.store?.remove('editor.html');
                 }} text='Delete' />
-            </div>
+            </div> */}
         </div>;
     }
 }

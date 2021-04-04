@@ -13,7 +13,8 @@ body {
 }
 
 .left-side {
-  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
   box-sizing: content-box;
   background: #555555;
   padding: 5px;
