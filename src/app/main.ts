@@ -1,8 +1,12 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import Core from './modules/Core';
+import ICore from './include/ICore';
+import UIChannel from './modules/UIChannel';
 import * as path from 'path';
 import * as url from 'url';
 
 let win: BrowserWindow;
+export const core: ICore = new Core();
 
 process.env.ELECTRON_START_URL = 'http://localhost:4001';
 
@@ -13,6 +17,7 @@ app.on('ready', () => {
         slashes: true,
     });
     
+    core.setUiChannel(new UIChannel());
     win = new BrowserWindow({
         width: 1600 * 0.9,
         height: 900 * 0.9,

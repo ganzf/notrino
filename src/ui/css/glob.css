@@ -24,10 +24,11 @@ body {
 
 .main-content {
   flex-grow: 1;
-  height: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  height: calc(100% - 10px);
+  max-width: calc(100% - 325px);
   display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .right-side {
@@ -83,4 +84,27 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.editor-container {
+  width: 50%;
+  height: calc(100%);
+}
+
+.note-card {
+  padding: 4px;
+  margin-top: 6px;
+  border: 1px solid black;
+  background: rgb(56, 56, 56);
+  color: white;
+  border-radius: 2px;
+  box-shadow: black 0px 0px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.svg-inline--fa {
+  margin-left: 2px;
+  margin-right: 2px;
 }

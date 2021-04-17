@@ -1,8 +1,13 @@
+import { NewNoteInfo } from 'app/include/events/Notes';
 import IChannel from 'common/IChannel';
 import IStore from 'ui/include/IStore';
 import IUICore from '../ui/include/IUICore';
+import MockChannel from './Channel';
 
+// @ts-ignore
 class MockUICore implements IUICore {
+    channel: IChannel = new MockChannel();
+
     setStore(store: IStore): void {
         throw new Error('Method not implemented.');
     }
@@ -13,14 +18,10 @@ class MockUICore implements IUICore {
 
     // Implicitely returning Promise<void>
     async init() {
-
+        
     }
 
-    // Allow unit tests and mock development with variable behavior.
-    async saveNote(content: string): Promise<boolean> {
-        if (content === 'shouldFail') {
-            return false;
-        }
+    createNewNote(): boolean {
         return true;
     }
 }

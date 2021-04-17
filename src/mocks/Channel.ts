@@ -11,13 +11,18 @@ class MockChannel implements IChannel {
     messagesSent: number = 0;
 
 
-    async send(event: IChannelMessage): Promise<any> {
+    send(event: IChannelMessage): boolean {
+        if (!event.allowSendByUI) {
+            return false;
+        }
         if (this.callbacks[event.name]) {
             this.lastMessage = event.name;
             this.lastPayload = event.payload;
             this.messagesSent += 1;
-            return this.callbacks[event.name](event);
+            this.callbacks[event.name](event);
+            return true;
         }
+        return true;
     }
 
     on(eventName: IChannelMessageName, callback: IChannelCallback): boolean {
