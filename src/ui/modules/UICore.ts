@@ -3,6 +3,7 @@ import ICore from 'app/include/ICore';
 import IUICore from 'ui/include/IUICore';
 import IStore from 'ui/include/IStore';
 import { NoteLoaded, NoteSaved, SaveNote } from 'ui/protocol/events/Notes';
+import { AppCoreInitStarted, AppCoreInitStepDetails, AppCoreIsReady, UICoreIsReady } from 'ui/protocol/events/App';
 import MockChannel from 'mocks/Channel';
 import AppChannel from 'ui/modules/AppChannel';
 import ReduxStore from './ReduxStore';
@@ -43,13 +44,27 @@ class UICore implements IUICore {
             // @ts-ignore
             window.app = core;
         }
+        this.appChannel.send(new UICoreIsReady());
     }
     
     setAppChannel(channel: IChannel): void {
         this.appChannel = channel;
+        this.appChannel.on(AppCoreInitStarted.name, (e: any) => this.onAppCoreInitStarted(e));
+        this.appChannel.on(AppCoreInitStepDetails.name, (e: any) => this.onAppCoreInitStepDetails(e));
+        this.appChannel.on(AppCoreIsReady.name, (e: any) => this.onAppCoreIsReady(e));
         this.appChannel.on(NoteLoaded.name, (e: any) => this.onNoteLoaded(e));
         this.appChannel.on(NewNoteInfo.name, (e: any) => this.onNewNoteInfo(e));
         this.appChannel.on(NoteSaved.name, (e: any) => this.onNoteSaved(e));
+    }
+
+    onAppCoreIsReady(e: any): void {
+        this.store.set('app.isInit', false);
+    }
+    onAppCoreInitStepDetails(message: AppCoreInitStepDetails): void {
+        this.store.set('app.initStep', message.payload.stepName);
+    }
+    onAppCoreInitStarted(e: any): void {
+        this.store.set('app.isInit', true);
     }
 
     setStore(store: IStore) {
@@ -57,8 +72,13 @@ class UICore implements IUICore {
     }
 
     onNoteLoaded(event: NoteLoaded) {
-        console.log('Note Loaded !');
-        this.store.set('note', event.payload.content);
+        const note = event.payload.note;
+        this.store.set('notes', (notes: any) => { 
+            if (!notes) {
+                return [note];
+            }
+            return [...notes, note];
+        })
     }
 
     createNewNote(): boolean {
@@ -86,11 +106,27 @@ class UICore implements IUICore {
     saveNote(note: any): boolean {
         const request = new SaveNote(note.identifier, note.value);
         this.store.set('editor.isSaving', true);
+        this.store.set('notes', (notes: any) => {
+            if (!notes) {
+                return [note];
+            }
+            return notes.map((n: any) => { 
+                if (n.identifier === note.identifier) {
+                    return note;
+                }
+                return n;
+            })
+        });
         return this.appChannel.send(request);
     }
     onNoteSaved(e: NoteSaved): void {
         this.store.set('editor.isSaving', false);
         this.store.set('editor.justSaved', true);
+    }
+
+    openNote(noteIdentifier: string): void {
+        this.store.set('editor.isReady', false);
+        this.store.set('editor.current', noteIdentifier);
     }
 }
 

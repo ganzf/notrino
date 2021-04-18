@@ -104,7 +104,27 @@ body {
   justify-content: space-between;
 }
 
+.note-card:hover {
+  cursor: pointer;
+  border: 1px solid dodgerblue;
+  box-shadow: dodgerblue 0px 0px 2px;
+}
+
 .svg-inline--fa {
   margin-left: 2px;
   margin-right: 2px;
+}
+
+.full-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:rgb(56, 56, 56);
+  flex-direction: column;
+  z-index: 99;
 }

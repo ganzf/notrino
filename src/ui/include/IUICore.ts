@@ -18,6 +18,9 @@ interface IUICore {
     // Requests (returning boolean indicating if the request has been sent through the channel)
     createNewNote(): boolean;
     saveNote(note: any): boolean;
+    
+    // Local methods
+    openNote(noteIdentifier: string): void;
 }
 
 export default IUICore;

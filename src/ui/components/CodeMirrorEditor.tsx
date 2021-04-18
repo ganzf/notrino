@@ -13,8 +13,9 @@ import { faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons';
 interface Props {
   editor: {
     current: string,
-    isSaving: boolean,
     justSaved: boolean,
+    isReady: boolean;
+    isSaving: boolean,
   }
   note: any;
 };
@@ -92,6 +93,14 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     if (!this.props.editor) {
       return null;
     }
+    
+    if (!this.props.editor.isReady) {
+      core.store?.set('editor.isReady', true);
+      this.setState({
+        value: this.props.note && this.props.note.value,
+      })
+    }
+
     return (
       <div className='editor-container'>
         <CodeMirror

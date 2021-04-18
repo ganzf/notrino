@@ -1,55 +1,49 @@
-import IChannelMessage from '../../../common/IChannelMessage';
+import ARequest from '../../../common/ARequest';
+import AResponse from '../../../common/AResponse';
 
-class CreateNewNote implements IChannelMessage {
+class CreateNewNote extends ARequest {
     name: string = CreateNewNote.name;
     payload: null = null;
-    allowSendByApp: boolean = false;
-    allowSendByUI: boolean = true;
 }
 
-class NoteLoaded implements IChannelMessage {
+class NoteLoaded extends AResponse {
     name: string = NoteLoaded.name; // = NoteLoaded
     payload: {
-        content: string,
+        note: any,
     };
-    allowSendByApp: boolean = true;
-    allowSendByUI: boolean = false;
 
-    constructor(content: string) {
-        this.payload = { content };
+    constructor(note: any) {
+        super();
+        this.payload = { note };
     }
 }
 
-class SaveNote implements IChannelMessage {
+class SaveNote extends ARequest {
     name: string = SaveNote.name; // = SaveNote
     payload: {
         identifier: string,
         value: string,
     };
-    allowSendByApp: boolean = false;
-    allowSendByUI: boolean = true;
 
     constructor(identifier: string, value: string) {
+        super();
         this.payload = { identifier, value };
     }
 }
 
-class NoteSaved implements IChannelMessage {
+class NoteSaved extends AResponse {
     name: string = NoteSaved.name;
     payload: null = null;
-    allowSendByApp = true;
-    allowSendByUI = false;
 }
 
-class NewNoteInfo implements IChannelMessage {
+class NewNoteInfo extends AResponse {
     name: string = NewNoteInfo.name; // = NewNoteInfo
     payload: {
         identifier: string,
     };
-    allowSendByUI: boolean = false;
-    allowSendByApp: boolean = true;
 
     constructor(identifier: string) {
+        super();
         this.payload = { identifier };
     }
 }

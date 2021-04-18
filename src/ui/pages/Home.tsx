@@ -17,6 +17,7 @@ interface Props {
     editor: any;
     notes: NoteInfo[];
     awaitingNewNote: boolean;
+    global: any;
 }
 
 class Home extends React.Component<Props> {
@@ -27,6 +28,17 @@ class Home extends React.Component<Props> {
         let icon = editor?.isSaving && faSpinner || editor?.justSaved && faCheck;
         return (
             <div className='page'>
+                {
+                    this.props.global?.app?.isInit && <div className='full-modal'>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <FontAwesomeIcon icon={faSpinner} spin />
+                            <h1>Preparing your workspace...</h1>
+                        </div>
+                        <small style={{ color: 'dodgerblue' }}>
+                            {this.props.global?.app?.initStep}
+                        </small>
+                    </div>
+                }
                 <div className='left-side'>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <b>Notes</b>
@@ -38,12 +50,12 @@ class Home extends React.Component<Props> {
                     </div>
                     {
                         notes && notes.map((note: any) => {
-                            return <div className='note-card'>
+                            return <div className='note-card' onClick={() => { core.openNote(note.identifier)}}>
                                 <div><b>{note.identifier}</b>: {note.title}</div>
                                 <div>
-                                    {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon 
+                                    {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
                                         icon={icon}
-                                        color={editor.isSaving ? 'white' : 'green' }
+                                        color={editor.isSaving ? 'white' : 'green'}
                                         spin={editor.isSaving}
                                     />}
                                 </div>
