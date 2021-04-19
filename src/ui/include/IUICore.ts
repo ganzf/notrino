@@ -6,7 +6,7 @@ interface IUICore {
     // Used to send and receive events from app
     appChannel?: IChannel;
     // Used to store data for components to display
-    store?: IStore;
+    store: IStore;
 
     // The UI needs asynchronous time for setting itself up.
     init(): Promise<void>;
@@ -21,6 +21,7 @@ interface IUICore {
     
     // Local methods
     openNote(noteIdentifier: string): void;
+    trashNote(noteIdentifier: string): void;
 }
 
 export default IUICore;

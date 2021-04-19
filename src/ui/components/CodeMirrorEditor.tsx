@@ -8,14 +8,16 @@ import './CodeMirrorEditor.css';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import core from 'ui';
-import { faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEdit, faIdCard, faKey, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   editor: {
     current: string,
     justSaved: boolean,
+    isEditing: boolean,
     isReady: boolean;
     isSaving: boolean,
+    isEditingIdentifier: boolean;
   }
   note: any;
 };
@@ -93,7 +95,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     if (!this.props.editor) {
       return null;
     }
-    
+
     if (!this.props.editor.isReady) {
       core.store?.set('editor.isReady', true);
       this.setState({
@@ -101,11 +103,21 @@ class CodeMirrorEditor extends React.Component<Props, any> {
       })
     }
 
+    let width: number = 50;
+    if (!this.props.editor?.isEditing) {
+      width = 25;
+    }
+
     return (
-      <div className='editor-container'>
+      <div className='editor-container' style={{ width: `${width}%`, opacity: width === 25 ? 0 : 1 }}>
         <CodeMirror
           editorDidMount={(editor) => {
             this.instance = editor;
+          }}
+          onFocus={() => {
+            // Used to fix the first focus after clicking on edit
+            this.instance && this.instance.refresh && this.instance.refresh();
+            this.forceUpdate();
           }}
           onKeyUp={(editor, event) => {
             const { key } = event;
@@ -146,6 +158,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               return;
             }
             this.setState({ value });
+            core.store?.set('editor.value', value);
           }}
           className='codemirror-container'
           value={this.state.value}
@@ -155,15 +168,16 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             lineNumbers: false,
             lineWrapping: true,
             extraKeys: {
-              "Ctrl-S": () => { 
-                // core.store?.set('editor.isSaving', true);
+              "Ctrl-Q": () => {
+                core.store?.set('editor.isEditing', false);
+              },
+              "Ctrl-S": () => {
                 // trigger a save
-                core.saveNote({ identifier: note.identifier, value: this.state.value });
-                setTimeout(() => {
-                  // on save confirmed
-                  // core.store?.set('editor.isSaving', false);
-                  // core.store?.set('editor.justSaved', true);
-                }, 5000);
+                if (note) {
+                  core.saveNote({ identifier: note.identifier, value: this.state.value, title: note.title });
+                } else {
+                  console.warn(`Could not save note, note not found. (identifier: ${this.props.editor?.current})`);
+                }
               }
             }
           }}
@@ -177,10 +191,10 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               const cursor = this.instance.getDoc().getCursor();
               const line = this.instance.getDoc().getLine(cursor.line);
               if (cursor.line === 0) {
-                core.store?.set('notes', (notes: any) => { 
+                core.store?.set('notes', (notes: any) => {
                   const note = notes && notes.find((note: any) => note.identifier === this.props.editor?.current);
                   if (note) {
-                    note.title = line;  
+                    note.title = line.replace(/^\#+\s+/, '');
                   }
                   return notes;
                 })
@@ -189,13 +203,52 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           }}
         />
         <div className='editor-footer'>
-          <div>
-            [{this.props.editor?.current}]&nbsp;&nbsp;<b>{note?.title}</b>
-          </div>
+            {
+              this.props.editor?.isEditingIdentifier && <div>
+                <input
+                  type="text"
+                  defaultValue={this.props.note?.identifier}
+                  onBlur={(e: any) => {
+                    core.store.set('notes', (notes: any) => {
+                      return notes.map((note: any) => {
+                        if (note.identifier === this.props.editor?.current) {
+                          note.identifier = e.target.value;
+                        }
+                        return note;
+                      });
+                    })
+                    // TODO: Implement me 
+                    core.trashNote(this.props.editor?.current);
+                    core.store.set('editor.isEditingIdentifier', false);
+                    core.store.set('editor.current', e.target.value);
+                  }}
+                />
+              </div>
+            }
+            {
+              !this.props.editor?.isEditingIdentifier && <div
+                className='footer-identifier'
+                onClick={() => {
+                  core.store.set('editor.isEditingIdentifier', (prev: any) => {
+                    if (prev === null || prev === undefined) {
+                      return true;
+                    }
+                    return !prev;
+                  });
+                }}
+              >
+                <FontAwesomeIcon icon={faIdCard} />
+                {this.props.editor?.current}
+              </div>
+            }
+            &nbsp;&nbsp;<b>{note?.title}</b>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            { this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' /> }
-            { this.props.editor?.justSaved && <FontAwesomeIcon icon={faCheck} color='green' /> }
-            <span className='keyboard-shortcut'>CTRL+S</span> to save
+            <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
+              <span className='keyboard-shortcut'>Ctrl+Q</span> to stop edit
+            </div>
+            <span className='keyboard-shortcut'>Ctrl+S</span> to save
+            {this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' />}
+            {!this.props.editor?.isSaving && this.props.editor?.justSaved && <FontAwesomeIcon icon={faCheck} color='green' />}
           </div>
         </div>
       </div>

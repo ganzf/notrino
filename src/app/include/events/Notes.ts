@@ -23,11 +23,12 @@ class SaveNote extends ARequest {
     payload: {
         identifier: string,
         value: string,
+        title: string,
     };
 
     constructor(identifier: string, value: string) {
         super();
-        this.payload = { identifier, value };
+        this.payload = { identifier, value, title: 'No title' };
     }
 }
 

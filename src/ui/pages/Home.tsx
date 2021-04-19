@@ -5,7 +5,8 @@ import { Button } from '../../design-system';
 import core from '../index';
 import CodeMirrorEditor from 'ui/components/CodeMirrorEditor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEdit, faPen, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import NoteViewer from 'ui/components/NoteViewer';
 
 interface NoteInfo {
     name: string;
@@ -50,8 +51,8 @@ class Home extends React.Component<Props> {
                     </div>
                     {
                         notes && notes.map((note: any) => {
-                            return <div className='note-card' onClick={() => { core.openNote(note.identifier)}}>
-                                <div><b>{note.identifier}</b>: {note.title}</div>
+                            return <div className='note-card' onClick={() => { core.openNote(note.identifier) }}>
+                                <div><small><b>{note.identifier}</b></small> {note.title}</div>
                                 <div>
                                     {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
                                         icon={icon}
@@ -65,7 +66,7 @@ class Home extends React.Component<Props> {
                 </div>
                 <div className='main-content'>
                     <CodeMirrorEditor />
-
+                    <NoteViewer mode={'text'} />
                 </div>
             </div>
         );

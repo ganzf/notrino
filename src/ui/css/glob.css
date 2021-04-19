@@ -102,12 +102,23 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.2s ease;
+  min-height: 42px;
 }
 
 .note-card:hover {
   cursor: pointer;
   border: 1px solid dodgerblue;
   box-shadow: dodgerblue 0px 0px 2px;
+}
+
+.note-card small {
+  color: grey;
+  transition: color 0.3s ease;
+}
+
+.note-card:hover small {
+  color: goldenrod;
 }
 
 .svg-inline--fa {
@@ -127,4 +138,23 @@ body {
   background:rgb(56, 56, 56);
   flex-direction: column;
   z-index: 99;
+}
+
+.shadow-button {
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(4, 80, 157);
+  color: black;
+  width: 100%;
+}
+
+.shadow-button:hover {
+  cursor: pointer;
+  box-shadow: white 0 0 1px 2px;
+  border-color: white;
+  color: white;
 }

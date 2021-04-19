@@ -37,7 +37,7 @@ class UICore implements IUICore {
             // we also create a fake core to make it easy for devs
             // to send "event apps" on this channel.
             this.setAppChannel(new MockChannel());
-            
+
             const MockApp = require('../../mocks/Core');
             const core = new MockApp.default() as ICore;
             core.setUiChannel(this.appChannel!!);
@@ -46,7 +46,7 @@ class UICore implements IUICore {
         }
         this.appChannel.send(new UICoreIsReady());
     }
-    
+
     setAppChannel(channel: IChannel): void {
         this.appChannel = channel;
         this.appChannel.on(AppCoreInitStarted.name, (e: any) => this.onAppCoreInitStarted(e));
@@ -73,7 +73,7 @@ class UICore implements IUICore {
 
     onNoteLoaded(event: NoteLoaded) {
         const note = event.payload.note;
-        this.store.set('notes', (notes: any) => { 
+        this.store.set('notes', (notes: any) => {
             if (!notes) {
                 return [note];
             }
@@ -89,12 +89,12 @@ class UICore implements IUICore {
         return sent;
     }
     onNewNoteInfo(newNoteInfo: NewNoteInfo) {
-        const note = { 
+        const note = {
             identifier: newNoteInfo.payload.identifier,
             title: '',
         };
         this.store.set('awaitingCreateNewNote', false);
-        this.store.set('notes', (notes: any) => { 
+        this.store.set('notes', (notes: any) => {
             if (!notes) {
                 return [note];
             }
@@ -105,12 +105,13 @@ class UICore implements IUICore {
 
     saveNote(note: any): boolean {
         const request = new SaveNote(note.identifier, note.value);
+        request.payload.title = note.title;
         this.store.set('editor.isSaving', true);
         this.store.set('notes', (notes: any) => {
             if (!notes) {
                 return [note];
             }
-            return notes.map((n: any) => { 
+            return notes.map((n: any) => {
                 if (n.identifier === note.identifier) {
                     return note;
                 }
@@ -124,9 +125,26 @@ class UICore implements IUICore {
         this.store.set('editor.justSaved', true);
     }
 
+
+    // Local methods
     openNote(noteIdentifier: string): void {
         this.store.set('editor.isReady', false);
         this.store.set('editor.current', noteIdentifier);
+    }
+
+    // FIXME: Also send a request to backend, otherwise the note will
+    // be loaded again on refresh
+    trashNote(noteIdentifier: string): void {
+        this.store.set('notes', (notes: any) => {
+            if (notes) {
+                return notes.filter((note: any) => {
+                    if (note.identifier === noteIdentifier) {
+                        return false;
+                    }
+                    return true;
+                })
+            }
+        })
     }
 }
 

@@ -77,7 +77,7 @@ class Core implements ICore {
                     const response = new NoteSaved();
                     reply(response);
                 }
-            }, 2500);
+            }, 150);
         });
     }
 
@@ -87,12 +87,13 @@ class Core implements ICore {
     }
 
     onSaveNote(saveNote: SaveNote): boolean {
-        const { identifier, value } = saveNote.payload;
+        const { identifier, value, title } = saveNote.payload;
         const savePath = path.join(this.dataDirectory, `note-${identifier}.notrinote`);
         const json = {
             value,
             identifier,
             saveDate: new Date(),
+            title,
         }
         Filesystem.writeFileSync(savePath, JSON.stringify(json));
         return true;
