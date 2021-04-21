@@ -13,21 +13,34 @@ body {
 }
 
 .left-side {
-  min-width: 300px;
-  max-width: 300px;
   box-sizing: content-box;
   background: #555555;
   padding: 5px;
   margin: 5px;
   height: calc(100% - 20px);
+  transition: min-width 0.5s ease, max-width 0.5s ease;
+  position: relative;
+}
+
+.left-side .collapse-left {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 12px;
+}
+
+.left-side .collapse-left:hover {
+  cursor: pointer;
+  color: dodgerblue;
 }
 
 .main-content {
+  position: relative;
   flex-grow: 1;
   margin-top: 5px;
   margin-bottom: 5px;
   height: calc(100% - 10px);
-  max-width: calc(100% - 325px);
+  padding-right: 5px;
   display: flex;
 }
 
@@ -157,4 +170,31 @@ body {
   box-shadow: white 0 0 1px 2px;
   border-color: white;
   color: white;
+}
+
+.absolute-modal {
+  position: absolute;
+  top: 40%;
+  left: 37.5%;
+  padding: 5px;
+  color: black;
+  width: 25%;
+  border-radius: 5px;
+  background: ghostwhite;
+  border: 1px solid white;
+  box-shadow: white 0 0 2px 2px;
+  animation: pop-in 0.25s;
+  z-index: 100;
+}
+
+.absolute-modal .absolute-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
 }

@@ -6,13 +6,17 @@ import * as dotprop from 'dot-prop-immutable';
 
 
 
+const DEFAULT_GLOBAL_STORE: any = {
+  isSideMenuOpen: true,
+}
+
 class ReduxStore implements IStore {
   store: any;
   dispatch: any;
   getState: any;
 
   constructor() {
-    const global = (state: any = {}, action: any = {}) => {
+    const global = (state: any = DEFAULT_GLOBAL_STORE, action: any = {}) => {
       if (action.type === 'set') {
         const { path, value } = action.payload;
         if (path) {
@@ -62,6 +66,11 @@ class ReduxStore implements IStore {
       }
     });
     return true;
+  }
+
+  get(path: string): any {
+    const state = this.getState();
+    return dotprop.get(state, path);
   }
 }
 

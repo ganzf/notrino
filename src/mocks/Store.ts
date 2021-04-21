@@ -17,6 +17,10 @@ class Store implements IStore {
         this.store.__deleted__.push(path);
         return true;
     }
+
+    get(path: string): any {
+        return null;
+    }
 }
 
 export default Store;

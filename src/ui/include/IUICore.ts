@@ -18,10 +18,16 @@ interface IUICore {
     // Requests (returning boolean indicating if the request has been sent through the channel)
     createNewNote(): boolean;
     saveNote(note: any): boolean;
+    trashNote(noteIdentifier: string): void;
+    updateNoteIdentifier(oldId: string, newId: string): void;
+    openFile(): void;
     
     // Local methods
     openNote(noteIdentifier: string): void;
-    trashNote(noteIdentifier: string): void;
+    confirm(confirmOptions: any): Promise<any>;
+    onConfirm(choice: string): void;
+    editNote(noteIdentifier: string, action: any): void;
+    saveCurrentNote(): void;
 }
 
 export default IUICore;

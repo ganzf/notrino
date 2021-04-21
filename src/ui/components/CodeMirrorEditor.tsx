@@ -8,16 +8,19 @@ import './CodeMirrorEditor.css';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import core from 'ui';
-import { faCheck, faEdit, faIdCard, faKey, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faCheck, faCogs, faEdit, faHamburger, faIdCard, faKey, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'design-system';
 
 interface Props {
   editor: {
     current: string,
     justSaved: boolean,
+    shouldReload: boolean,
     isEditing: boolean,
     isReady: boolean;
     isSaving: boolean,
     isEditingIdentifier: boolean;
+    isMenuOpen: boolean;
   }
   note: any;
 };
@@ -96,11 +99,11 @@ class CodeMirrorEditor extends React.Component<Props, any> {
       return null;
     }
 
-    if (!this.props.editor.isReady) {
+    if (!this.props.editor.isReady || this.props.editor.shouldReload) {
       core.store?.set('editor.isReady', true);
-      this.setState({
-        value: this.props.note && this.props.note.value,
-      })
+      core.store?.set('editor.shouldReload', false);
+      const value = this.props.note?.value;
+      this.setState({ value });
     }
 
     let width: number = 50;
@@ -174,7 +177,12 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               "Ctrl-S": () => {
                 // trigger a save
                 if (note) {
-                  core.saveNote({ identifier: note.identifier, value: this.state.value, title: note.title });
+                  core.saveNote({ 
+                    identifier: note.identifier, 
+                    value: this.state.value, 
+                    title: note.title,
+                    saveDate: new Date(),
+                   });
                 } else {
                   console.warn(`Could not save note, note not found. (identifier: ${this.props.editor?.current})`);
                 }
@@ -183,7 +191,6 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           }}
           onChange={(editor, data, value) => {
             setTimeout(() => {
-
               if (this.props.editor?.justSaved) {
                 core.store?.set('editor.justSaved', false);
               }
@@ -203,6 +210,49 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           }}
         />
         <div className='editor-footer'>
+          <div className={`menu ${this.props.editor.isMenuOpen ? 'open' : ''}`}>
+            <div className='menu-item' onClick={() => {
+              core.store.set('editor.isMenuOpen', false);
+            }}>
+              <FontAwesomeIcon icon={faCogs} />
+              Options
+              </div>
+            <div className='menu-item' onClick={async () => {
+              if (note) {
+                core.store.set('editor.isMenuOpen', false);
+                const choice = await core.confirm({
+                  icon: faTrash,
+                  title: 'Are you sure ?',
+                  message: 'Are you sure you want to trash this note ?',
+                  choices: [
+                    {
+                      label: 'Cancel',
+                    },
+                    {
+                      label: 'Confirm',
+                    }
+                  ],
+                });
+                if (choice === 'Confirm') {
+                  core.trashNote(note.identifier)
+                }
+              }
+            }}>
+              <FontAwesomeIcon icon={faTrash} />
+              Move to trash
+              </div>
+          </div>
+          <div className='toolbar-button' onClick={() => {
+            core.store.set('editor.isMenuOpen', (isOpen: boolean) => {
+              if (isOpen) {
+                return false;
+              }
+              return true;
+            });
+          }}>
+            <FontAwesomeIcon icon={faBars} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {
               this.props.editor?.isEditingIdentifier && <div>
                 <input
@@ -217,8 +267,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
                         return note;
                       });
                     })
-                    // TODO: Implement me 
-                    core.trashNote(this.props.editor?.current);
+                    core.updateNoteIdentifier(this.props.editor.current, e.target.value);
                     core.store.set('editor.isEditingIdentifier', false);
                     core.store.set('editor.current', e.target.value);
                   }}
@@ -242,6 +291,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               </div>
             }
             &nbsp;&nbsp;<b>{note?.title}</b>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
               <span className='keyboard-shortcut'>Ctrl+Q</span> to stop edit
@@ -251,7 +301,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             {!this.props.editor?.isSaving && this.props.editor?.justSaved && <FontAwesomeIcon icon={faCheck} color='green' />}
           </div>
         </div>
-      </div>
+      </div >
     )
   }
 }

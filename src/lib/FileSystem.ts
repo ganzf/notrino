@@ -1,5 +1,4 @@
-import { mkdirSync } from "fs";
-
+const mv = require('mv');
 const fs = require('fs');
 
 class Filesystem {
@@ -12,16 +11,32 @@ class Filesystem {
   }
 
   createDir(path: string): boolean { 
-    mkdirSync(path);
+    fs.mkdirSync(path);
     return this.exists(path);
   }
 
-  read(path: string): string {
-    return fs.readFileSync(path);
+  read(path: string, encoding: string =undefined): string {
+    return fs.readFileSync(path, encoding);
   }
 
   ls(path: string): string[] {
     return fs.readdirSync(path);
+  }
+
+  isDirectory(path: string) {
+    const stats = fs.statSync(path);
+    return stats.isDirectory();
+  }
+
+  async move(sourcePath: string, destinationPath: string): Promise<boolean> {
+    return new Promise((resolve) => { 
+      mv(sourcePath, destinationPath, (err: any) => {
+        if (err) {
+          resolve(false);
+        }
+        resolve(true);
+      });
+    })
   }
 }
 

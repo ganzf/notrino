@@ -5,7 +5,7 @@ import { Button } from '../../design-system';
 import core from '../index';
 import CodeMirrorEditor from 'ui/components/CodeMirrorEditor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faEdit, faPen, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleLeft, faArrowCircleRight, faCheck, faEdit, faPen, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import NoteViewer from 'ui/components/NoteViewer';
 
 interface NoteInfo {
@@ -27,6 +27,8 @@ class Home extends React.Component<Props> {
         const currentNote = this.props.notes && this.props.notes.find((note) => note.identifier === editor?.current);
         const notes = this.props.notes;
         let icon = editor?.isSaving && faSpinner || editor?.justSaved && faCheck;
+        const isOpen = this.props.global.isSideMenuOpen;
+        const leftSideWidth = isOpen ? 300 : 80;
         return (
             <div className='page'>
                 {
@@ -40,19 +42,26 @@ class Home extends React.Component<Props> {
                         </small>
                     </div>
                 }
-                <div className='left-side'>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <b>Notes</b>
-                        <Button
-                            onClick={() => { core.createNewNote(); }}
-                            text='+'
-                            disabled={this.props.awaitingNewNote}
-                        />
+                <div className='left-side' style={{ minWidth: `${leftSideWidth}px`, maxWidth: `${leftSideWidth}px` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: isOpen ? 'row' : 'column' }}>
+                        <b>Notrinotes</b>
+                        <div>
+                            <Button
+                                onClick={() => { core.openFile(); }}
+                                text='Open'
+                                disabled={false}
+                            />
+                            <Button
+                                onClick={() => { core.createNewNote(); }}
+                                text='+'
+                                disabled={this.props.awaitingNewNote}
+                            />
+                        </div>
                     </div>
                     {
                         notes && notes.map((note: any) => {
                             return <div className='note-card' onClick={() => { core.openNote(note.identifier) }}>
-                                <div><small><b>{note.identifier}</b></small> {note.title}</div>
+                                <div><small><b>{note.identifier}</b></small> {isOpen && note.title}</div>
                                 <div>
                                     {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
                                         icon={icon}
@@ -63,8 +72,44 @@ class Home extends React.Component<Props> {
                             </div>
                         })
                     }
+                    <div className='collapse-left'>
+                        {
+                            this.props.global.isSideMenuOpen && <FontAwesomeIcon icon={faArrowCircleLeft}
+                                onClick={() => {
+                                    core.store.set('isSideMenuOpen', false);
+                                }}
+                            />
+                        }
+                        {
+                            !this.props.global.isSideMenuOpen && <FontAwesomeIcon icon={faArrowCircleRight}
+                                onClick={() => {
+                                    core.store.set('isSideMenuOpen', true);
+                                }}
+                            />
+                        }
+                    </div>
                 </div>
                 <div className='main-content'>
+                    {
+                        this.props.global?.modal?.show && <div className='absolute-modal'>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                {this.props.global.modal.options.icon && <FontAwesomeIcon icon={this.props.global.modal.options.icon} />}
+                                <h2>{this.props.global.modal.options.title}</h2>
+                            </div>
+                            <p>
+                                {this.props.global.modal.options.message}
+                            </p>
+                            <div className='absolute-modal-footer'>
+                                {
+                                    this.props.global.modal.options.choices.map((choice: any) => {
+                                        return <Button text={choice.label} onClick={() => {
+                                            core.onConfirm(choice.label);
+                                        }} />
+                                    })
+                                }
+                            </div>
+                        </div>
+                    }
                     <CodeMirrorEditor />
                     <NoteViewer mode={'text'} />
                 </div>

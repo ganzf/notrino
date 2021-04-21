@@ -4,7 +4,7 @@ import ICore from './include/ICore';
 import * as path from 'path';
 import * as url from 'url';
 
-let win: BrowserWindow;
+export let win: BrowserWindow;
 export const core: ICore = new Core();
 
 process.env.ELECTRON_START_URL = 'http://localhost:4001';

@@ -41,6 +41,22 @@ class NewNoteInfo extends AResponse {
     name: string = NewNoteInfo.name; // = NewNoteInfo
     payload: {
         identifier: string,
+        value: string | null,
+    };
+
+    constructor(identifier: string) {
+        super();
+        this.payload = {
+            identifier,
+            value: null,
+        };
+    }
+}
+
+class TrashNote extends ARequest {
+    name: string = TrashNote.name;
+    payload: {
+        identifier: string,
     };
 
     constructor(identifier: string) {
@@ -49,13 +65,55 @@ class NewNoteInfo extends AResponse {
     }
 }
 
+class NoteTrashed extends AResponse {
+    name: string = NoteTrashed.name;
+    payload: {
+        identifier: string,
+    };
+
+    constructor(identifier: string) {
+        super();
+        this.payload = { identifier }
+    }
+}
+
+class UpdateNoteIdentifier extends ARequest {
+    name: string = UpdateNoteIdentifier.name;
+    payload: {
+        oldId: string,
+        newId: string,
+    }
+
+    constructor(oldId: string, newId: string) {
+        super();
+        this.payload = { oldId, newId };
+    }
+}
+
+class NoteIdentifierChanged extends AResponse {
+    name: string = NoteIdentifierChanged.name;
+    payload: {
+        oldId: string,
+        newId: string,
+    }
+
+    constructor(oldId: string, newId: string) {
+        super();
+        this.payload = { oldId, newId };
+    }
+}
+
 export {
     // Requests
     CreateNewNote,
     SaveNote,
+    TrashNote,
+    UpdateNoteIdentifier,
 
     // Responses
     NewNoteInfo,
     NoteLoaded,
     NoteSaved,
+    NoteTrashed,
+    NoteIdentifierChanged,
 }

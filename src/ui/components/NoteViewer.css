@@ -63,3 +63,12 @@
   background-color: orangered;
   color: white;
 }
+
+.note-viewer-content .inline-tag.idea {
+  background-color: rgb(112, 138, 160);
+  color: gold;
+}
+
+.note-viewer-content .empty-line {
+  height: 12px;
+}
