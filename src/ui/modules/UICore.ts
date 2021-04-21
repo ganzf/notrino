@@ -193,7 +193,7 @@ class UICore implements IUICore {
     // Local methods
     openNote(noteIdentifier: string): void {
         this.store.set('editor.isReady', false);
-        this.store.set('editor.current', noteIdentifier);
+        this.store.set('editor.current', noteIdentifier);        
     }
 
     closeEditor(): void {
@@ -217,6 +217,7 @@ class UICore implements IUICore {
                             line.split(/[\r\n]/).forEach((line: string) => lines.push(line));
                         }
                     });
+                    console.log('Applying edit to note: ', { action });
                     if (lines) {
                         lines = lines.map((line: any, lineNbr: number) => {
                             if (lineNbr === action.lineNbr) {
@@ -260,6 +261,7 @@ class UICore implements IUICore {
                             }
                             return line;
                         });
+                        // Add empty lines again
                         result = lines.join('\n');
                         note.value = result;
                     }

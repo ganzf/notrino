@@ -111,7 +111,7 @@ class Home extends React.Component<Props> {
                         </div>
                     }
                     <CodeMirrorEditor />
-                    <NoteViewer mode={'text'} />
+                    <NoteViewer />
                 </div>
             </div>
         );

@@ -8,6 +8,9 @@ import * as dotprop from 'dot-prop-immutable';
 
 const DEFAULT_GLOBAL_STORE: any = {
   isSideMenuOpen: true,
+  editor: {
+    mode: 'text',
+  }
 }
 
 class ReduxStore implements IStore {

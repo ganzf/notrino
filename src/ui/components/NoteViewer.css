@@ -72,3 +72,38 @@
 .note-viewer-content .empty-line {
   height: 12px;
 }
+
+.react-kanban-board {
+  height: calc(100% - 30px);
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.react-kanban-column {
+  background:rgb(80, 80, 80);
+  border-radius: 4px;
+  min-width: 300px;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.react-kanban-board > div {
+  height: calc(100% - 10px);
+  
+}
+
+.kanban-card {
+  border: 1px solid white;
+  box-shadow: white 0 0 1px 1px;
+  background: whitesmoke;
+  padding: 5px;
+  width: 300px;
+  color: black;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.kanban-card:hover {
+  border-left: 2px solid dodgerblue;
+  border-right: 2px solid dodgerblue;
+}
