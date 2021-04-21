@@ -2,7 +2,7 @@ import ARequest from "../../../common/ARequest";
 import AResponse from "../../../common/AResponse";
 
 class UICoreIsReady extends ARequest {
-  name: string = UICoreIsReady.name;
+  name: string = "UICoreIsReady";
   payload: {
     options: any,
   } = { 
@@ -11,12 +11,12 @@ class UICoreIsReady extends ARequest {
 }
 
 class AppCoreInitStarted extends AResponse {
-  name: string = AppCoreInitStarted.name;
+  name: string = "AppCoreInitStarted";
   payload: null = null;
 }
 
 class AppCoreInitStepDetails extends AResponse {
-  name: string = AppCoreInitStepDetails.name;
+  name: string = "AppCoreInitStepDetails";
   payload: {
     stepName: string,
   } = { 
@@ -25,17 +25,17 @@ class AppCoreInitStepDetails extends AResponse {
 }
 
 class AppCoreIsReady extends AResponse {
-  name: string = AppCoreIsReady.name;
+  name: string = "AppCoreIsReady";
   payload: null = null;
 }
 
 class OpenFileExplorer extends ARequest {
-  name: string = OpenFileExplorer.name;
+  name: string = "OpenFileExplorer";
   payload: null = null;
 }
 
 class FileOpenedByUser extends AResponse {
-  name: string = FileOpenedByUser.name;
+  name: string = "FileOpenedByUser";
   payload: {
     filepath: string,
     content: string,

@@ -4,6 +4,7 @@ import IUICore from 'ui/include/IUICore';
 import IStore from 'ui/include/IStore';
 import { NoteIdentifierChanged, NoteLoaded, NoteSaved, NoteTrashed, SaveNote, TrashNote, UpdateNoteIdentifier } from 'ui/protocol/events/Notes';
 import { AppCoreInitStarted, AppCoreInitStepDetails, AppCoreIsReady, UICoreIsReady, OpenFileExplorer } from 'ui/protocol/events/App';
+import Events from 'ui/protocol/events';
 import MockChannel from 'mocks/Channel';
 import AppChannel from 'ui/modules/AppChannel';
 import ReduxStore from './ReduxStore';
@@ -50,14 +51,14 @@ class UICore implements IUICore {
 
     setAppChannel(channel: IChannel): void {
         this.appChannel = channel;
-        this.appChannel.on(AppCoreInitStarted.name, (e: any) => this.onAppCoreInitStarted(e));
-        this.appChannel.on(AppCoreInitStepDetails.name, (e: any) => this.onAppCoreInitStepDetails(e));
-        this.appChannel.on(AppCoreIsReady.name, (e: any) => this.onAppCoreIsReady(e));
-        this.appChannel.on(NoteLoaded.name, (e: any) => this.onNoteLoaded(e));
-        this.appChannel.on(NewNoteInfo.name, (e: any) => this.onNewNoteInfo(e));
-        this.appChannel.on(NoteSaved.name, (e: any) => this.onNoteSaved(e));
-        this.appChannel.on(NoteTrashed.name, (e: any) => this.onNoteTrashed(e));
-        this.appChannel.on(NoteIdentifierChanged.name, (e: any) => this.onNoteIdentifierChanged(e));
+        this.appChannel.on(Events.AppCoreInitStarted, (e: any) => this.onAppCoreInitStarted(e));
+        this.appChannel.on(Events.AppCoreInitStepDetails, (e: any) => this.onAppCoreInitStepDetails(e));
+        this.appChannel.on(Events.AppCoreIsReady, (e: any) => this.onAppCoreIsReady(e));
+        this.appChannel.on(Events.NoteLoaded, (e: any) => this.onNoteLoaded(e));
+        this.appChannel.on(Events.NewNoteInfo, (e: any) => this.onNewNoteInfo(e));
+        this.appChannel.on(Events.NoteSaved, (e: any) => this.onNoteSaved(e));
+        this.appChannel.on(Events.NoteTrashed, (e: any) => this.onNoteTrashed(e));
+        this.appChannel.on(Events.NoteIdentifierChanged, (e: any) => this.onNoteIdentifierChanged(e));
     }
 
     confirm(confirmOptions: any): Promise<any> {

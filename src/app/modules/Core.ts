@@ -4,6 +4,7 @@ import { win } from '../main';
 import ICore from '../include/ICore';
 import IChannel from '../../common/IChannel';
 import { NewNoteInfo, NoteIdentifierChanged, NoteLoaded, NoteSaved, NoteTrashed, SaveNote, TrashNote, UpdateNoteIdentifier } from '../include/events/Notes';
+import Events from '../include/events';
 import Filesystem from '../../lib/FileSystem';
 import UIChannel from './UIChannel';
 import { AppCoreInitStepDetails, OpenFileExplorer, UICoreIsReady } from '../include/events/App';
@@ -32,7 +33,7 @@ class Core implements ICore {
 
     setUiChannel(channel: IChannel) {
         this.uiChannel = channel;
-        this.uiChannel.on(UICoreIsReady.name, (message, reply) => {
+        this.uiChannel.on(Events.UICoreIsReady, (message, reply) => {
             const initStarted = new AppCoreInitStarted();
             reply(initStarted);
             let step = new AppCoreInitStepDetails();
@@ -78,7 +79,7 @@ class Core implements ICore {
                 reply(initEnded);
             }, 1000);
         });
-        this.uiChannel.on(SaveNote.name, (message: SaveNote, reply) => {
+        this.uiChannel.on(Events.SaveNote, (message: SaveNote, reply) => {
             setTimeout(() => {
                 if (this.onSaveNote(message)) {
                     const response = new NoteSaved();
@@ -87,7 +88,7 @@ class Core implements ICore {
             }, 150);
         });
 
-        this.uiChannel.on(TrashNote.name, (message: TrashNote, reply) => {
+        this.uiChannel.on(Events.TrashNote, (message: TrashNote, reply) => {
             setTimeout(async () => {
                 if (await this.trashNote(message.payload.identifier)) {
                     reply(new NoteTrashed(message.payload.identifier));
@@ -95,7 +96,7 @@ class Core implements ICore {
             }, 100);
         });
 
-        this.uiChannel.on(UpdateNoteIdentifier.name, (message: UpdateNoteIdentifier, reply) => { 
+        this.uiChannel.on(Events.UpdateNoteIdentifier, (message: UpdateNoteIdentifier, reply) => { 
             setTimeout(async () => {
                 const oldName = path.join(this.dataDirectory, `note-${message.payload.oldId}.notrinote`);
                 const newName = path.join(this.dataDirectory, `note-${message.payload.newId}.notrinote`);
@@ -112,7 +113,7 @@ class Core implements ICore {
             }, 100);
         });
 
-        this.uiChannel.on(OpenFileExplorer.name, (message, reply) => { 
+        this.uiChannel.on(Events.OpenFileExplorer, (message, reply) => { 
             this.onOpenFileExporer(message, reply);
         })
     }

@@ -2,12 +2,12 @@ import ARequest from '../../../common/ARequest';
 import AResponse from '../../../common/AResponse';
 
 class CreateNewNote extends ARequest {
-    name: string = CreateNewNote.name;
+    name: string = "CreateNewNote";
     payload: null = null;
 }
 
 class NoteLoaded extends AResponse {
-    name: string = NoteLoaded.name; // = NoteLoaded
+    name: string = "NoteLoaded"; // = NoteLoaded
     payload: {
         note: any,
     };
@@ -19,7 +19,7 @@ class NoteLoaded extends AResponse {
 }
 
 class SaveNote extends ARequest {
-    name: string = SaveNote.name; // = SaveNote
+    name: string = "SaveNote"; // = SaveNote
     payload: {
         identifier: string,
         value: string,
@@ -33,12 +33,12 @@ class SaveNote extends ARequest {
 }
 
 class NoteSaved extends AResponse {
-    name: string = NoteSaved.name;
+    name: string = "NoteSaved";
     payload: null = null;
 }
 
 class NewNoteInfo extends AResponse {
-    name: string = NewNoteInfo.name; // = NewNoteInfo
+    name: string = "NewNoteInfo"; // = NewNoteInfo
     payload: {
         identifier: string,
         value: string | null,
@@ -54,7 +54,7 @@ class NewNoteInfo extends AResponse {
 }
 
 class TrashNote extends ARequest {
-    name: string = TrashNote.name;
+    name: string = "TrashNote";
     payload: {
         identifier: string,
     };
@@ -66,7 +66,7 @@ class TrashNote extends ARequest {
 }
 
 class NoteTrashed extends AResponse {
-    name: string = NoteTrashed.name;
+    name: string = "NoteTrashed";
     payload: {
         identifier: string,
     };
@@ -78,7 +78,7 @@ class NoteTrashed extends AResponse {
 }
 
 class UpdateNoteIdentifier extends ARequest {
-    name: string = UpdateNoteIdentifier.name;
+    name: string = "UpdateNoteIdentifier";
     payload: {
         oldId: string,
         newId: string,
@@ -91,7 +91,7 @@ class UpdateNoteIdentifier extends ARequest {
 }
 
 class NoteIdentifierChanged extends AResponse {
-    name: string = NoteIdentifierChanged.name;
+    name: string = "NoteIdentifierChanged";
     payload: {
         oldId: string,
         newId: string,

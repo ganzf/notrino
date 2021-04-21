@@ -3,15 +3,17 @@ import Core from './modules/Core';
 import ICore from './include/ICore';
 import * as path from 'path';
 import * as url from 'url';
+import Filesytem from '../lib/FileSystem';
+import FileSystem from '../lib/FileSystem';
 
 export let win: BrowserWindow;
 export const core: ICore = new Core();
 
-process.env.ELECTRON_START_URL = 'http://localhost:4001';
+// process.env.ELECTRON_START_URL = 'http://localhost:4001';
 
 app.on('ready', () => {
     const startUrl = process.env.ELECTRON_START_URL || url.format({
-        pathname: path.join(__dirname, '../index.html'),
+        pathname: path.join(__dirname, '../../index.html'),
         protocol: 'file:',
         slashes: true,
     });

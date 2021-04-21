@@ -1,6 +1,8 @@
 {
   "name": "notrino",
   "version": "1.0.0",
+  "author": "Felix Ganz",
+  "description": "A note app with extra features",
   "productName": "Notrino",
   "main": "src/app/build/app/main.js",
   "dependencies": {
@@ -10,6 +12,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.3",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.14",
+    "@lourenci/react-kanban": "^2.1.0",
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
@@ -53,14 +56,20 @@
   },
   "homepage": "./",
   "build": {
-    "files": [
-      "build/**/*",
-      "node_modules/**/*"
-    ],
-    "publish": {
-      "provider": "github",
-      "repo": "ganzf/notrino",
-      "owner": "Felix Ganz"
+    "appId": "com.ganzf.notrino",
+    "copyright": "Copyright © 2021 Felix Ganz",
+    "directories": {
+      "output": "release",
+      "buildResources": "./build"
+    },
+    "files": ["build/icon.*"],
+    "productName": "Notrino",
+    "mac": {
+      "target": ["dmg"],
+      "identity": null,
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
     }
   },
   "scripts": {
@@ -77,10 +86,10 @@
     "dev:app:launch": "yarn dev:app:compile && yarn dev:app:start",
     "macos:app:launch": "export ELECTRON_START_URL=http://localhost:4002 && yarn dev:app:compile && electron .",
     "ci:test": "yarn test --watchAll=false --coverage",
-    "ci:build": "yarn build && yarn dev:app:compile && mkdirp ./build && cp -r ./src/app/build/ ./build/electron",
+    "ci:build": "yarn dev:bootstrap && yarn dev:sync && yarn build && yarn dev:app:compile && mkdirp ./build && cp -r ./src/app/build/ ./build/electron",
     "ci:package-for-windows": "electron-builder build --win -c.extraMetadata.main=build/electron/main.js --publish never",
     "ci:package-for-linux": "echo NOT_IMPLEMENTED",
-    "ci:package-for-macos": "echo NOT_IMPLEMENTED",
+    "ci:package-for-macos": "electron-builder build --mac -c.extraMetadata.main=build/electron/app/main.js --publish never",
     "check": "yarn dev:lint && yarn test",
     "release": "yarn build && yarn compile-app && yarn build-electron && yarn package",
     "clean": "rm -rf build && rm -rf src/app/build && rm -rf dist && rm -rf coverage",
