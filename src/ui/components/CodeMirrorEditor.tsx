@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import core from 'ui';
 import { faBars, faCheck, faCogs, faEdit, faHamburger, faIdCard, faKey, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'design-system';
+import { createModuleResolutionCache } from 'typescript';
 
 interface Props {
   editor: {
@@ -102,13 +103,26 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     if (!this.props.editor.isReady || this.props.editor.shouldReload) {
       core.store?.set('editor.isReady', true);
       core.store?.set('editor.shouldReload', false);
-      const value = this.props.note?.value;
+      const value = this.props.note?.unsavedValue || this.props.note?.value;
       this.setState({ value });
     }
 
     let width: number = 50;
     if (!this.props.editor?.isEditing) {
       width = 25;
+    }
+
+    // @ts-ignore
+    if (this.props.editor?.shouldFocus) {
+      const textarea = document.querySelector('.CodeMirror textarea');
+      console.log({ textarea });
+      if (textarea) {
+        setTimeout(() => {
+          // @ts-ignore
+          textarea.focus && textarea.focus();
+          core.store?.set('editor.shouldFocus', false);
+        }, 150);
+      }
     }
 
     return (
@@ -162,6 +176,22 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             }
             this.setState({ value });
             core.store?.set('editor.value', value);
+            core.store?.set('notes', (notes: any) => {
+              return notes && notes.map((note: any) => {
+                if (note.identifier === this.props.editor.current) {
+                  if (note.value !== value) {
+                    note.edited = true;
+                    note.unsavedValue = value;
+                  } else {
+                    if (note.edited) {
+                      note.edited = false;
+                      note.unsavedValue = undefined;
+                    }
+                  }
+                }
+                return note;
+              }) || [];
+            });
           }}
           className='codemirror-container'
           value={this.state.value}
@@ -177,12 +207,12 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               "Ctrl-S": () => {
                 // trigger a save
                 if (note) {
-                  core.saveNote({ 
-                    identifier: note.identifier, 
-                    value: this.state.value, 
+                  core.saveNote({
+                    identifier: note.identifier,
+                    value: this.state.value,
                     title: note.title,
                     saveDate: new Date(),
-                   });
+                  });
                 } else {
                   console.warn(`Could not save note, note not found. (identifier: ${this.props.editor?.current})`);
                 }
@@ -274,22 +304,12 @@ class CodeMirrorEditor extends React.Component<Props, any> {
                 />
               </div>
             }
-            {
-              !this.props.editor?.isEditingIdentifier && <div
-                className='footer-identifier'
-                onClick={() => {
-                  core.store.set('editor.isEditingIdentifier', (prev: any) => {
-                    if (prev === null || prev === undefined) {
-                      return true;
-                    }
-                    return !prev;
-                  });
-                }}
-              >
-                <FontAwesomeIcon icon={faIdCard} />
-                {this.props.editor?.current}
-              </div>
-            }
+
+            <div>
+              <FontAwesomeIcon icon={faIdCard} />
+              {this.props.editor?.current}
+            </div>
+
             &nbsp;&nbsp;<b>{note?.title}</b>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>

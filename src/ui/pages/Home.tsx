@@ -5,7 +5,7 @@ import { Button } from '../../design-system';
 import core from '../index';
 import CodeMirrorEditor from 'ui/components/CodeMirrorEditor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowCircleLeft, faArrowCircleRight, faCheck, faEdit, faPen, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleLeft, faArrowCircleRight, faCheck, faEdit, faExclamationTriangle, faPaperclip, faPen, faSpinner, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 import NoteViewer from 'ui/components/NoteViewer';
 
 interface NoteInfo {
@@ -63,6 +63,7 @@ class Home extends React.Component<Props> {
                             return <div className='note-card' onClick={() => { core.openNote(note.identifier) }}>
                                 <div><small><b>{note.identifier}</b></small> {isOpen && note.title}</div>
                                 <div>
+                                    { note.edited && <FontAwesomeIcon icon={faExclamationTriangle} color='yellow' />}
                                     {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
                                         icon={icon}
                                         color={editor.isSaving ? 'white' : 'green'}

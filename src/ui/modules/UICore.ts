@@ -128,6 +128,8 @@ class UICore implements IUICore {
         })
         this.store.set('editor.current', note.identifier);
         this.store.set('editor.isEditing', true);
+        this.store.set('editor.shouldReload', true);
+        this.store.set('editor.shouldFocus', true);
     }
 
     saveNote(note: any): boolean {
@@ -194,7 +196,8 @@ class UICore implements IUICore {
     // Local methods
     openNote(noteIdentifier: string): void {
         this.store.set('editor.isReady', false);
-        this.store.set('editor.current', noteIdentifier);        
+        this.store.set('editor.current', noteIdentifier);
+        this.store.set('editor.shouldReload', true);
     }
 
     closeEditor(): void {
@@ -218,8 +221,8 @@ class UICore implements IUICore {
                             line.split(/[\r\n]/).forEach((line: string) => lines.push(line));
                         }
                     });
-                    console.log('Applying edit to note: ', { action });
-                    if (lines) {
+                    console.log('Applying edit to note: ', { action, value, lines });
+                    if (value && lines) {
                         lines = lines.map((line: any, lineNbr: number) => {
                             if (lineNbr === action.lineNbr) {
                                 const { tagValue } = action;
@@ -265,6 +268,7 @@ class UICore implements IUICore {
                         // Add empty lines again
                         result = lines.join('\n');
                         note.value = result;
+                        note.edited = true;
                     }
                 }
                 return note;

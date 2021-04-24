@@ -20,13 +20,18 @@ interface Props {
 class NoteViewer extends React.Component<Props> {
   render() {
     const width = 50;
-    const value = (this.props.editor?.isEditing && this.props.editor?.value) || this.props.note?.value;
+    const { note } = this.props;
+    if (!note) {
+      return null;
+    }
+
+    const isEditing = this.props.editor?.isEditing;
+    const value = note.unsavedValue || note.value;
+    
     if (!value) {
       return null;
     }
 
-    const { note } = this.props;
-    const isEditing = this.props.editor?.isEditing;
     const left = isEditing ? 0 : 25;
     const lines: any[] = [];
     value?.split(/(?=[\r\n]{2})|(?<=[\r\n]{2})/).map((line: string) => {
