@@ -22,7 +22,7 @@ import AppChannel from 'ui/modules/AppChannel';
 import ReduxStore from './ReduxStore';
 import { CreateNewNote, NewNoteInfo } from 'app/include/events/Notes';
 import core from 'ui';
-import parser from 'ui/utils/parser';
+import parser from 'ui/modules/parser';
 
 class UICore implements IUICore {
     // Used to send and receive events from app
@@ -293,10 +293,10 @@ class UICore implements IUICore {
                 if (note.identifier === noteIdentifier) {
                     const value = note.unsavedValue || note.value;
                     let result = '';
-                    let lines: any[] = parser.getLinesFromValue(value);
+                    let lines: any[] = parser._getLinesFromValue(value);
 
                     if (value && lines) {
-                        lines = lines.map((line: any, lineNbr: number) => {
+                        lines = lines.map((line) => line.text).map((line: any, lineNbr: number) => {
                             if (lineNbr === action.lineNbr) {
                                 const { tagValue } = action;
                                 console.log('Editing line ! ', { tagValue, lineNbr, action, line });
