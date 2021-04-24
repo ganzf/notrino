@@ -7,6 +7,7 @@ import core from 'ui';
 import moment from 'moment';
 import ReactKanban from '@lourenci/react-kanban';
 import '@lourenci/react-kanban/dist/styles.css'
+import parser from 'ui/utils/parser';
 
 import './NoteViewer.css';
 
@@ -33,14 +34,7 @@ class NoteViewer extends React.Component<Props> {
     }
 
     const left = isEditing ? 0 : 25;
-    const lines: any[] = [];
-    value?.split(/(?=[\r\n]{2})|(?<=[\r\n]{2})/).map((line: string) => {
-      if (line.match(/^[\r\n]+$/)) {
-        lines.push(null);
-      } else {
-        line.split(/[\r\n]/).forEach((line: string) => lines.push(line));
-      }
-    });
+    const lines: any[] = parser.getLinesFromValue(value);
     const context: any = {
       typed: {},
     };

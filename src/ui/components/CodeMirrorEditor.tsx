@@ -104,7 +104,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
       core.store?.set('editor.isReady', true);
       core.store?.set('editor.shouldReload', false);
       const value = this.props.note?.unsavedValue || this.props.note?.value;
-      this.setState({ value });
+      this.updateNote(value);
     }
 
     let width: number = 50;
@@ -213,24 +213,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             if (this.props.editor?.isSaving) {
               return;
             }
-            this.setState({ value });
-            core.store?.set('editor.value', value);
-            core.store?.set('notes', (notes: any) => {
-              return notes && notes.map((note: any) => {
-                if (note.identifier === this.props.editor.current) {
-                  if (note.value !== value) {
-                    note.edited = true;
-                    note.unsavedValue = value;
-                  } else {
-                    if (note.edited) {
-                      note.edited = false;
-                      note.unsavedValue = undefined;
-                    }
-                  }
-                }
-                return note;
-              }) || [];
-            });
+            this.updateNote(value);
           }}
           className='codemirror-container'
           value={this.state.value}
@@ -363,6 +346,27 @@ class CodeMirrorEditor extends React.Component<Props, any> {
         </div>
       </div >
     )
+  }
+
+  updateNote(value: string) {
+    this.setState({ value });
+    core.store?.set('editor.value', value);
+    core.store?.set('notes', (notes: any) => {
+      return notes && notes.map((note: any) => {
+        if (note.identifier === this.props.editor.current) {
+          if (note.value !== value) {
+            note.edited = true;
+            note.unsavedValue = value;
+          } else {
+            if (note.edited) {
+              note.edited = false;
+              note.unsavedValue = undefined;
+            }
+          }
+        }
+        return note;
+      }) || [];
+    });
   }
 }
 

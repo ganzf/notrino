@@ -146,6 +146,7 @@ class Home extends React.Component<Props> {
                                 core.store?.set('trash.isOpen', (isOpen: any) => isOpen ? false : true);
                             }}
                         />
+                        <small><b>{this.props.global?.trash?.notes?.length || 0}</b></small>
                     </div>
                     <div className='collapse-left'>
                         {

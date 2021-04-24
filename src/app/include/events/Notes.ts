@@ -35,7 +35,16 @@ class SaveNote extends ARequest {
 
 class NoteSaved extends AResponse {
     name: string = "NoteSaved";
-    payload: null = null;
+    payload: {
+        identifier: string;
+    }
+
+    constructor(identifier: string) {
+        super();
+        this.payload = {
+            identifier
+        }
+    }
 }
 
 class NewNoteInfo extends AResponse {
@@ -106,11 +115,11 @@ class NoteIdentifierChanged extends AResponse {
 
 class RestoreTrashedNote extends ARequest {
     name: string = events.RestoreTrashedNote;
-    payload: { 
+    payload: {
         identifier: string;
     }
 
-    constructor(noteIdentifier: string)  {
+    constructor(noteIdentifier: string) {
         super();
         this.payload = {
             identifier: noteIdentifier,
@@ -120,11 +129,11 @@ class RestoreTrashedNote extends ARequest {
 
 class DeleteTrashedNote extends ARequest {
     name: string = events.DeleteTrashedNote;
-    payload: { 
+    payload: {
         identifier: string;
     }
 
-    constructor(noteIdentifier: string)  {
+    constructor(noteIdentifier: string) {
         super();
         this.payload = {
             identifier: noteIdentifier,

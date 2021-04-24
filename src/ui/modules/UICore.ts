@@ -22,6 +22,7 @@ import AppChannel from 'ui/modules/AppChannel';
 import ReduxStore from './ReduxStore';
 import { CreateNewNote, NewNoteInfo } from 'app/include/events/Notes';
 import core from 'ui';
+import parser from 'ui/utils/parser';
 
 class UICore implements IUICore {
     // Used to send and receive events from app
@@ -176,6 +177,15 @@ class UICore implements IUICore {
     onNoteSaved(e: NoteSaved): void {
         this.store.set('editor.isSaving', false);
         this.store.set('editor.justSaved', true);
+        this.store.set('notes', (notes: any) => { 
+            return notes?.map((note: any) => { 
+                if (note.identifier === e.payload.identifier) {
+                    note.unsavedValue = undefined;
+                    note.edited = false;
+                }
+                return note;
+            }) || [];
+        })
     }
 
     trashNote(noteIdentifier: string): void {
@@ -281,17 +291,10 @@ class UICore implements IUICore {
         this.store.set('notes', (notes: any) => {
             return notes && notes.map((note: any) => {
                 if (note.identifier === noteIdentifier) {
-                    const value = note.value;
+                    const value = note.unsavedValue || note.value;
                     let result = '';
-                    let lines: any[] = [];
-                    value?.split(/(?=[\r\n]{2})|(?<=[\r\n]{2})/).map((line: string) => {
-                        if (line.match(/^[\r\n]+$/)) {
-                            lines.push(null);
-                        } else {
-                            line.split(/[\r\n]/).forEach((line: string) => lines.push(line));
-                        }
-                    });
-                    console.log('Applying edit to note: ', { action, value, lines });
+                    let lines: any[] = parser.getLinesFromValue(value);
+
                     if (value && lines) {
                         lines = lines.map((line: any, lineNbr: number) => {
                             if (lineNbr === action.lineNbr) {
@@ -337,8 +340,7 @@ class UICore implements IUICore {
                         });
                         // Add empty lines again
                         result = lines.join('\n');
-                        note.value = result;
-                        note.edited = true;
+                        note.unsavedValue = result;
                     }
                 }
                 return note;
@@ -353,6 +355,8 @@ class UICore implements IUICore {
             const notes = this.store.get('global.notes');
             if (notes) {
                 const note = notes.find((note: any) => note.identifier === editor.current);
+                note.value = note.unsavedValue
+                delete note.unsavedValue;
                 if (note) {
                     this.saveNote(note);
                 }

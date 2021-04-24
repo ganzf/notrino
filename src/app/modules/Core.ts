@@ -86,7 +86,7 @@ class Core implements ICore {
         this.uiChannel.on(Events.SaveNote, (message: SaveNote, reply) => {
             setTimeout(() => {
                 if (this.onSaveNote(message)) {
-                    const response = new NoteSaved();
+                    const response = new NoteSaved(message.payload.identifier);
                     reply(response);
                 }
             }, 150);
