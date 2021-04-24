@@ -18,7 +18,7 @@
   background: rgb(47, 47, 47);
   border-top: 1px solid ghostwhite;
   justify-content: space-between;
-  z-index: 5;
+  z-index: 10;
 }
 
 .codemirror-container {
@@ -93,13 +93,12 @@
 .menu {
   opacity: 0;
   position: absolute;
-  top: -100px;
+  bottom: -100px;
   background: white;
   width: 25%;
   color: black;
   height: 0px;
-  transition: height 0.2s ease, top 0.2s ease, opacity 0.3s ease-out;
-  top: 0px;
+  transition: height 0.1s ease, bottom 0.2s ease, opacity 0.1s ease-out;
   pointer-events: none;
   z-index: 3;
   padding: 2px;
@@ -108,8 +107,8 @@
 
 .menu.open {
   opacity: 1;
-  top: -86px;
   height: 86px;
+  bottom: var(--editor-footer-height);
   pointer-events: all;
   z-index: 3;
   border-top-left-radius: 3px;
@@ -135,4 +134,43 @@
   box-shadow: dodgerblue 0 0 2px 1px;
   color: dodgerblue;
   border: 1px solid dodgerblue;
+}
+
+.editor-options-container {
+  position: absolute;
+  background:rgb(67, 67, 67);
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  z-index: 3;
+  padding: 10px;
+  border-radius: 4px;
+  left: 2px;
+  top: 2px;
+}
+
+.editor-options-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin-bottom: 25px;
+}
+
+.editor-option-container {
+  display: flex;
+  align-items: center;
+  height: 60px;
+}
+
+.editor-option-container label {
+  font-weight: bold;
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.editor-option-container input {
+  border: none;
+  min-height: 35px;
+  border-radius: 4px;
+  padding-left: 4px;
 }

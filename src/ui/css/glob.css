@@ -34,6 +34,35 @@ body {
   color: dodgerblue;
 }
 
+.left-side .bin-button {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  font-size: 12px;
+  color: grey;
+  width: calc(100% - 6px);
+}
+
+.left-side .bin-button .svg-inline--fa:hover {
+  cursor: pointer;
+  color: white;
+}
+
+.left-side .bin-button.open {
+  color: white;
+}
+
+.bin-container {
+  width: 100%;
+  background: rgb(67, 67, 67);
+  border-radius: 4px;
+  z-index: 4;
+  max-height: 300px;
+  padding: 4px;
+  overflow-y: scroll;
+  transition: height 0.2s ease;
+}
+
 .main-content {
   position: relative;
   flex-grow: 1;
@@ -134,6 +163,21 @@ body {
   color: goldenrod;
 }
 
+.note-card.current {
+  border-color: dodgerblue;
+}
+
+.trashed-note-card {
+  padding-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trashed-note-card:hover {
+  background: rgb(56, 56, 56);
+}
+
 .svg-inline--fa {
   margin-left: 2px;
   margin-right: 2px;
@@ -197,4 +241,11 @@ body {
 @keyframes pop-in {
   0% { opacity: 0; transform: scale(0.5); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+
+.note-cards-container {
+  padding-top: 4px;
+  height: calc(100% - 52px);
+  overflow-y: scroll;
 }

@@ -3,7 +3,7 @@ import { app, shell, dialog } from 'electron';
 import { win } from '../main';
 import ICore from '../include/ICore';
 import IChannel from '../../common/IChannel';
-import { NewNoteInfo, NoteIdentifierChanged, NoteLoaded, NoteSaved, NoteTrashed, SaveNote, TrashNote, UpdateNoteIdentifier } from '../include/events/Notes';
+import { DeleteTrashedNote, NewNoteInfo, NoteIdentifierChanged, NoteLoaded, NoteSaved, NoteTrashed, RestoreTrashedNote, SaveNote, TrashedNoteDeleted, TrashedNoteRestored, TrashNote, UpdateNoteIdentifier } from '../include/events/Notes';
 import Events from '../include/events';
 import Filesystem from '../../lib/FileSystem';
 import UIChannel from './UIChannel';
@@ -44,24 +44,28 @@ class Core implements ICore {
             }, 100);
 
             const notes = Filesystem.ls(this.dataDirectory);
-            
+            const trash = Filesystem.ls(path.join(this.dataDirectory, 'trashed'));
+
             notes.forEach((note) => {
                 if (Filesystem.isDirectory(path.join(this.dataDirectory, note))) {
                     return;
                 }
-                const content = Filesystem.read(path.join(this.dataDirectory, note));
-                const noteData = JSON.parse(content);
-                const noteLoaded = new NoteLoaded(noteData);
-                try {
-                    const id = parseInt(noteData.identifier.split('N')[1]);
-                    if (this.maxNoteId < id) {
-                        this.maxNoteId = id;
-                    }
-                } catch (e) {
-
+                const noteLoaded = this.loadNote(note);
+                if (noteLoaded) {
+                    reply(noteLoaded);
                 }
-                reply(noteLoaded);
             });
+
+            trash.forEach((note) => {
+                if (Filesystem.isDirectory(path.join(this.dataDirectory, 'trashed', note))) {
+                    return;
+                }
+                const content = Filesystem.read(path.join(this.dataDirectory, 'trashed', note));
+                const noteData = JSON.parse(content);
+                noteData.isTrash = true;
+                const noteLoaded = new NoteLoaded(noteData);
+                reply(noteLoaded);
+            })
 
 
             /*             setTimeout(() => { 
@@ -96,7 +100,7 @@ class Core implements ICore {
             }, 100);
         });
 
-        this.uiChannel.on(Events.UpdateNoteIdentifier, (message: UpdateNoteIdentifier, reply) => { 
+        this.uiChannel.on(Events.UpdateNoteIdentifier, (message: UpdateNoteIdentifier, reply) => {
             setTimeout(async () => {
                 const oldName = path.join(this.dataDirectory, `note-${message.payload.oldId}.notrinote`);
                 const newName = path.join(this.dataDirectory, `note-${message.payload.newId}.notrinote`);
@@ -113,9 +117,36 @@ class Core implements ICore {
             }, 100);
         });
 
-        this.uiChannel.on(Events.OpenFileExplorer, (message, reply) => { 
+        this.uiChannel.on(Events.OpenFileExplorer, (message, reply) => {
             this.onOpenFileExporer(message, reply);
-        })
+        });
+
+        this.uiChannel.on(Events.RestoreTrashedNote, async (message: RestoreTrashedNote, reply) => {
+            // Move trashed note into userNotes
+            const filename = this.findInTrash(message.payload.identifier);
+            if (filename) {
+                const filepath = path.join(this.dataDirectory, 'trashed', filename);
+                const next = path.join(this.dataDirectory, filename);
+                const moved = await Filesystem.move(filepath, next);
+                if (moved) {
+                    reply(new TrashedNoteRestored(message.payload.identifier));
+                    const noteLoaded = this.loadNote(filename);
+                    if (noteLoaded) {
+                        reply(noteLoaded);
+                    }
+                }
+            }
+        });
+
+        this.uiChannel.on(Events.DeleteTrashedNote, (message: DeleteTrashedNote, reply) => {
+            const filename = this.findInTrash(message.payload.identifier);
+            if (filename) {
+                const filepath = path.join(this.dataDirectory, 'trashed', filename);
+                Filesystem.rm(filepath);
+                return reply(new TrashedNoteDeleted(message.payload.identifier));
+            }
+            return console.error('Could not delete file', { filename, trash: Filesystem.ls(path.join(this.dataDirectory, 'trashed')) });
+        });
     }
 
     createNewNote(): NewNoteInfo {
@@ -124,8 +155,13 @@ class Core implements ICore {
     }
 
     onOpenFileExporer(event: OpenFileExplorer, reply: any): void {
-        dialog.showOpenDialog(win).then((userChoice) => { 
-            console.log({ userChoice });
+        const options = {
+            filters: [
+                { name: 'Text', extensions: ['txt'] },
+                { name: 'Notrinote', extensions: ['ntn'] },
+            ]
+        };
+        dialog.showOpenDialog(win, options).then((userChoice) => {
             if (!userChoice.canceled) {
                 const filepath = userChoice.filePaths[0];
                 const ext = path.extname(filepath);
@@ -188,6 +224,51 @@ class Core implements ICore {
             console.error('Does not exists');
         }
         return moved && exists;
+    }
+
+    findInTrash(identifier: string): string | undefined {
+        const trash = Filesystem.ls(path.join(this.dataDirectory, 'trashed'));
+        let found: string | undefined;
+        trash.forEach((filename) => {
+            if (filename.split('-')[1].split('.')[0] === identifier) {
+                found = filename;
+            }
+        })
+        return found;
+    }
+
+    findInNotes(identifier: string): string | undefined {
+        const trash = Filesystem.ls(path.join(this.dataDirectory));
+        let found: string | undefined;
+        trash.forEach((filename) => {
+            try {
+                if (filename.split('-')[1].split('.')[0] === identifier) {
+                    found = filename;
+                }
+            } catch (e) {
+
+            }
+        })
+        return found;
+    }
+
+    loadNote(name: string): NoteLoaded | undefined {
+        let noteData: any;
+        try {
+            const content = Filesystem.read(path.join(this.dataDirectory, name));
+            noteData = JSON.parse(content);
+            const id = parseInt(noteData.identifier.split('N')[1]);
+            if (this.maxNoteId < id) {
+                this.maxNoteId = id;
+            }
+        } catch (e) {
+
+        }
+        if (!noteData) {
+            return undefined;
+        }
+        const noteLoaded = new NoteLoaded(noteData);
+        return noteLoaded;
     }
 }
 

@@ -21,6 +21,8 @@ interface IUICore {
     trashNote(noteIdentifier: string): void;
     updateNoteIdentifier(oldId: string, newId: string): void;
     openFile(): void;
+    deleteTrashedNote(noteIdentifier: string): void;
+    restoreTrashedNote(noteIdentifier: string): void;
     
     // Local methods
     openNote(noteIdentifier: string): void;

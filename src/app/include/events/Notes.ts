@@ -1,3 +1,4 @@
+import events from '.';
 import ARequest from '../../../common/ARequest';
 import AResponse from '../../../common/AResponse';
 
@@ -103,12 +104,70 @@ class NoteIdentifierChanged extends AResponse {
     }
 }
 
+class RestoreTrashedNote extends ARequest {
+    name: string = events.RestoreTrashedNote;
+    payload: { 
+        identifier: string;
+    }
+
+    constructor(noteIdentifier: string)  {
+        super();
+        this.payload = {
+            identifier: noteIdentifier,
+        };
+    }
+}
+
+class DeleteTrashedNote extends ARequest {
+    name: string = events.DeleteTrashedNote;
+    payload: { 
+        identifier: string;
+    }
+
+    constructor(noteIdentifier: string)  {
+        super();
+        this.payload = {
+            identifier: noteIdentifier,
+        };
+    }
+}
+
+class TrashedNoteRestored extends AResponse {
+    name = events.TrashedNoteRestored;
+    payload: {
+        identifier: string;
+    }
+
+    constructor(identifier: string) {
+        super();
+        this.payload = {
+            identifier,
+        };
+    }
+}
+
+class TrashedNoteDeleted extends AResponse {
+    name = events.TrashedNoteDeleted;
+    payload: {
+        identifier: string;
+    }
+
+    constructor(noteIdentifier: string) {
+        super();
+        this.payload = {
+            identifier: noteIdentifier,
+        };
+    }
+}
+
 export {
     // Requests
     CreateNewNote,
     SaveNote,
     TrashNote,
     UpdateNoteIdentifier,
+    RestoreTrashedNote,
+    DeleteTrashedNote,
 
     // Responses
     NewNoteInfo,
@@ -116,4 +175,6 @@ export {
     NoteSaved,
     NoteTrashed,
     NoteIdentifierChanged,
+    TrashedNoteRestored,
+    TrashedNoteDeleted,
 }

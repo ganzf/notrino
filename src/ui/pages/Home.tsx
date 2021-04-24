@@ -5,7 +5,7 @@ import { Button } from '../../design-system';
 import core from '../index';
 import CodeMirrorEditor from 'ui/components/CodeMirrorEditor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowCircleLeft, faArrowCircleRight, faCheck, faEdit, faExclamationTriangle, faPaperclip, faPen, faSpinner, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import { faArrowCircleLeft, faArrowCircleRight, faCheck, faEdit, faExclamationTriangle, faPaperclip, faPen, faSpinner, faStickyNote, faTrash, faTrashAlt, faTrashRestore } from '@fortawesome/free-solid-svg-icons';
 import NoteViewer from 'ui/components/NoteViewer';
 
 interface NoteInfo {
@@ -27,8 +27,8 @@ class Home extends React.Component<Props> {
         const currentNote = this.props.notes && this.props.notes.find((note) => note.identifier === editor?.current);
         const notes = this.props.notes;
         let icon = editor?.isSaving && faSpinner || editor?.justSaved && faCheck;
-        const isOpen = this.props.global.isSideMenuOpen;
-        const leftSideWidth = isOpen ? 300 : 80;
+        const isOpen = this.props.global.isSideMenuOpen || this.props.global.trash?.isOpen;
+        const leftSideWidth = isOpen ? 320 : 100;
         return (
             <div className='page'>
                 {
@@ -45,7 +45,7 @@ class Home extends React.Component<Props> {
                 <div className='left-side' style={{ minWidth: `${leftSideWidth}px`, maxWidth: `${leftSideWidth}px` }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: isOpen ? 'row' : 'column' }}>
                         <b>Notrinotes</b>
-                        <div>
+                        <div style={{ minWidth: '40%', display: 'flex', justifyContent: 'space-between' }}>
                             <Button
                                 onClick={() => { core.openFile(); }}
                                 text='Open'
@@ -53,26 +53,100 @@ class Home extends React.Component<Props> {
                             />
                             <Button
                                 onClick={() => { core.createNewNote(); }}
-                                text='+'
+                                text='New'
                                 disabled={this.props.awaitingNewNote}
                             />
                         </div>
                     </div>
-                    {
-                        notes && notes.map((note: any) => {
-                            return <div className='note-card' onClick={() => { core.openNote(note.identifier) }}>
-                                <div><small><b>{note.identifier}</b></small> {isOpen && note.title}</div>
-                                <div>
-                                    { note.edited && <FontAwesomeIcon icon={faExclamationTriangle} color='yellow' />}
-                                    {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
-                                        icon={icon}
-                                        color={editor.isSaving ? 'white' : 'green'}
-                                        spin={editor.isSaving}
-                                    />}
+                    <div className='note-cards-container'>
+                        {
+                            notes && notes.map((note: any) => {
+                                let css = "note-card";
+                                if (note.identifier === currentNote?.identifier) {
+                                    css += ' current';
+                                }
+                                return <div className={css} onClick={() => { core.openNote(note.identifier) }}>
+                                    <div><small><b>{note.identifier}</b></small> {isOpen && note.title}</div>
+                                    <div>
+                                        {note.edited && <FontAwesomeIcon icon={faExclamationTriangle} color='yellow' />}
+                                        {currentNote && currentNote.identifier === note.identifier && <FontAwesomeIcon
+                                            icon={icon}
+                                            color={editor.isSaving ? 'white' : 'green'}
+                                            spin={editor.isSaving}
+                                        />}
+                                    </div>
                                 </div>
+                            })
+                        }
+                    </div>
+
+                    <div
+                        className={this.props.global?.trash?.isOpen ? 'bin-button open' : 'bin-button'}
+                    >
+                        {
+                            this.props.global?.trash?.isOpen && <div className="bin-container">
+                                {
+                                    (this.props.global.trash.notes?.length === 0
+                                        || !this.props.global.trash.notes)
+                                    && <div style={{
+                                        display: 'flex',
+                                        width: '100%',
+                                        height: '100%',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}>
+                                        <b><small>Your trash is empty</small></b>
+                                    </div>
+                                }
+                                {
+                                    this.props.global?.trash?.notes?.map((trashedNote: any) => {
+                                        return <div className='trashed-note-card'
+                                            onMouseOver={() => {
+                                                this.setState({ currentTrashNoteOver: trashedNote.identifier });
+                                            }}
+                                        >
+                                            <small>{trashedNote.identifier}</small>{trashedNote.title}
+                                            {
+                                                // @ts-ignore
+                                                this.state?.currentTrashNoteOver === trashedNote.identifier && <div>
+                                                    <FontAwesomeIcon icon={faTrash} color={'crimson'}
+                                                        onClick={async () => {
+                                                            const choice = await core.confirm({
+                                                                icon: faTrash,
+                                                                title: 'Permanent Delete',
+                                                                message: `Are you sure you want to permanently delete ${trashedNote.title} ?`,
+                                                                choices: [
+                                                                    {
+                                                                        label: 'Cancel',
+                                                                    },
+                                                                    {
+                                                                        label: 'Confirm',
+                                                                    }
+                                                                ],
+                                                            });
+                                                            if (choice === 'Confirm') {
+                                                                core.deleteTrashedNote(trashedNote.identifier);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <FontAwesomeIcon icon={faTrashRestore} color={'green'}
+                                                        onClick={() => {
+                                                            core.restoreTrashedNote(trashedNote.identifier);
+                                                        }}
+                                                    />
+                                                </div>
+                                            }
+                                        </div>;
+                                    })
+                                }
                             </div>
-                        })
-                    }
+                        }
+                        <FontAwesomeIcon icon={faTrashAlt}
+                            onClick={() => {
+                                core.store?.set('trash.isOpen', (isOpen: any) => isOpen ? false : true);
+                            }}
+                        />
+                    </div>
                     <div className='collapse-left'>
                         {
                             this.props.global.isSideMenuOpen && <FontAwesomeIcon icon={faArrowCircleLeft}

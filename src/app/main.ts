@@ -8,10 +8,10 @@ export let win: BrowserWindow;
 export const core: ICore = new Core();
 
 // TODO: Comment me before release !!
-const ELECTRON_START_URL = 'http://localhost:4001';
+// const ELECTRON_START_URL = 'http://localhost:4001';
 
 app.on('ready', () => {
-    const startUrl = ELECTRON_START_URL || url.format({
+    const startUrl = url.format({
         pathname: path.join(__dirname, '../../index.html'),
         protocol: 'file:',
         slashes: true,
@@ -28,8 +28,7 @@ app.on('ready', () => {
         title: 'Notrino',
     });
     win.loadURL(startUrl);
-    // TODO: Comment me before release !!
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
 });
 
 app.on('window-all-closed', function () {

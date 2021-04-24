@@ -44,7 +44,8 @@ class NoteViewer extends React.Component<Props> {
     const context: any = {
       typed: {},
     };
-    const parsed = lines.map((line: string, lineNbr: number) => {
+    let parsed: any[] = [];
+    parsed = lines.map((line: string, lineNbr: number) => {
       // Empty lines
       if (!line) {
 

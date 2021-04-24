@@ -2,13 +2,26 @@ import IChannel from 'common/IChannel';
 import ICore from 'app/include/ICore';
 import IUICore from 'ui/include/IUICore';
 import IStore from 'ui/include/IStore';
-import { NoteIdentifierChanged, NoteLoaded, NoteSaved, NoteTrashed, SaveNote, TrashNote, UpdateNoteIdentifier } from 'ui/protocol/events/Notes';
+import {
+    NoteIdentifierChanged,
+    NoteLoaded,
+    NoteSaved,
+    NoteTrashed,
+    SaveNote,
+    TrashNote,
+    UpdateNoteIdentifier,
+    RestoreTrashedNote,
+    DeleteTrashedNote,
+    TrashedNoteDeleted,
+    TrashedNoteRestored
+} from 'ui/protocol/events/Notes';
 import { AppCoreInitStarted, AppCoreInitStepDetails, AppCoreIsReady, UICoreIsReady, OpenFileExplorer } from 'ui/protocol/events/App';
 import Events from 'ui/protocol/events';
 import MockChannel from 'mocks/Channel';
 import AppChannel from 'ui/modules/AppChannel';
 import ReduxStore from './ReduxStore';
 import { CreateNewNote, NewNoteInfo } from 'app/include/events/Notes';
+import core from 'ui';
 
 class UICore implements IUICore {
     // Used to send and receive events from app
@@ -59,6 +72,8 @@ class UICore implements IUICore {
         this.appChannel.on(Events.NoteSaved, (e: any) => this.onNoteSaved(e));
         this.appChannel.on(Events.NoteTrashed, (e: any) => this.onNoteTrashed(e));
         this.appChannel.on(Events.NoteIdentifierChanged, (e: any) => this.onNoteIdentifierChanged(e));
+        this.appChannel.on(Events.TrashedNoteDeleted, (e: any) => this.onTrashedNoteDeleted(e));
+        this.appChannel.on(Events.TrashedNoteRestored, (e: any) => this.onTrashedNoteRestored(e));
     }
 
     confirm(confirmOptions: any): Promise<any> {
@@ -98,12 +113,21 @@ class UICore implements IUICore {
 
     onNoteLoaded(event: NoteLoaded) {
         const note = event.payload.note;
-        this.store.set('notes', (notes: any) => {
-            if (!notes) {
-                return [note];
-            }
-            return [...notes, note];
-        })
+        if (note.isTrash) {
+            this.store.set('trash.notes', (trashedNotes: any) => {
+                if (!trashedNotes) {
+                    return [note];
+                }
+                return [...trashedNotes, note];
+            });
+        } else {
+            this.store.set('notes', (notes: any) => {
+                if (!notes) {
+                    return [note];
+                }
+                return [...notes, note];
+            })
+        }
     }
 
     createNewNote(): boolean {
@@ -165,16 +189,29 @@ class UICore implements IUICore {
             shouldClose = true;
             return current;
         })
+        let found: any;
         this.store.set('notes', (notes: any) => {
             if (notes) {
                 return notes.filter((note: any) => {
                     if (note.identifier === identifier) {
+                        found = note;
                         return false;
                     }
                     return true;
                 })
             }
         })
+        if (found) {
+            this.store.set('trash.notes', (trashedNotes: any) => {
+                if (!trashedNotes) {
+                    return [found];
+                }
+                if (trashedNotes) {
+                    return [...trashedNotes, found];
+                }
+                return trashedNotes;
+            })
+        }
         if (shouldClose) {
             this.closeEditor();
         }
@@ -191,6 +228,39 @@ class UICore implements IUICore {
 
     openFile(): void {
         this.appChannel.send(new OpenFileExplorer());
+    }
+
+    deleteTrashedNote(noteIdentifier: string) {
+        this.appChannel.send(new DeleteTrashedNote(noteIdentifier));
+    }
+
+    onTrashedNoteDeleted(event: TrashedNoteDeleted) {
+        const noteIdentifier = event.payload.identifier;
+        core.store.set('trash.notes', (trashedNotes: any) => {
+            return trashedNotes?.filter((trashedNote: any) => {
+                if (trashedNote.identifier === noteIdentifier) {
+                    return false;
+                }
+                return true;
+            }) || [];
+        });
+    }
+
+    restoreTrashedNote(noteIdentifier: string) {
+        this.appChannel.send(new RestoreTrashedNote(noteIdentifier));
+    }
+
+    onTrashedNoteRestored(event: TrashedNoteRestored) {
+        // Simply remove from local trash, the "restored" note will be loaded by backend.
+        const noteIdentifier = event.payload.identifier;
+        core.store.set('trash.notes', (trashedNotes: any) => {
+            return trashedNotes?.filter((trashedNote: any) => {
+                if (trashedNote.identifier === noteIdentifier) {
+                    return false;
+                }
+                return true;
+            }) || [];
+        })
     }
 
     // Local methods

@@ -16,6 +16,11 @@ class NamedEvents {
   NoteSaved = 'NoteSaved';
   NoteTrashed = 'NoteTrashed';
   NoteIdentifierChanged = 'NoteIdentifierChanged';
+
+  TrashedNoteDeleted = 'TrashedNoteDeleted';
+  TrashedNoteRestored = 'TrashedNoteRestored';
+  DeleteTrashedNote = 'DeleteTrashedNote';
+  RestoreTrashedNote = 'RestoreTrashedNote';
 };
 
 // TODO: Implement me. Check that no two events have the same value (otherwise you can expect com issues)

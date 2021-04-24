@@ -127,6 +127,44 @@ class CodeMirrorEditor extends React.Component<Props, any> {
 
     return (
       <div className='editor-container' style={{ width: `${width}%`, opacity: width === 25 ? 0 : 1 }}>
+
+        {
+          // @ts-ignore
+          this.props.editor?.isOptionsOpen && <div className="editor-options-container">
+            <div className="editor-options-header">
+              <h3>{note?.title}{' > Options'}</h3>
+              <div style={{ width: '20%', display: 'flex', justifyContent: 'space-between' }}>
+                <Button text="Close" onClick={() => { core.store?.set('editor.isOptionsOpen', false); }} />
+                <Button text='Save' disabled={this.state.unsavedIdentifier == null} onClick={() => {
+                  core.store.set('notes', (notes: any) => {
+                    return notes.map((note: any) => {
+                      if (note.identifier === this.props.editor?.current) {
+                        note.identifier = this.state.unsavedIdentifier;
+                      }
+                      return note;
+                    });
+                  })
+                  core.updateNoteIdentifier(this.props.editor.current, this.state.unsavedIdentifier);
+                  core.store.set('editor.current', this.state.unsavedIdentifier);
+                  this.setState({ unsavedIdentifier: null });
+                }} />
+              </div>
+            </div>
+            <div className="editor-option-container">
+              <label htmlFor="identifier-input">Identifier</label>
+              <input
+                id="identifier-input"
+                tabIndex={2}
+                type="text"
+                value={this.state.unsavedIdentifier || note?.identifier}
+                onChange={(e) => {
+                  this.setState({ unsavedIdentifier: e.target.value });
+                }}
+              />
+            </div>
+          </div>
+        }
+
         <CodeMirror
           editorDidMount={(editor) => {
             this.instance = editor;
@@ -134,6 +172,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           onFocus={() => {
             // Used to fix the first focus after clicking on edit
             this.instance && this.instance.refresh && this.instance.refresh();
+            core.store?.set('editor.isMenuOpen', false);
             this.forceUpdate();
           }}
           onKeyUp={(editor, event) => {
@@ -201,7 +240,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             lineNumbers: false,
             lineWrapping: true,
             extraKeys: {
-              "Ctrl-Q": () => {
+              "Ctrl-E": () => {
                 core.store?.set('editor.isEditing', false);
               },
               "Ctrl-S": () => {
@@ -239,39 +278,40 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             }, 100);
           }}
         />
-        <div className='editor-footer'>
-          <div className={`menu ${this.props.editor.isMenuOpen ? 'open' : ''}`}>
-            <div className='menu-item' onClick={() => {
-              core.store.set('editor.isMenuOpen', false);
-            }}>
-              <FontAwesomeIcon icon={faCogs} />
+        <div className={`menu ${this.props.editor.isMenuOpen ? 'open' : ''}`}>
+          <div className='menu-item' onClick={() => {
+            core.store.set('editor.isOptionsOpen', true);
+            core.store.set('editor.isMenuOpen', false);
+          }}>
+            <FontAwesomeIcon icon={faCogs} />
               Options
-              </div>
-            <div className='menu-item' onClick={async () => {
-              if (note) {
-                core.store.set('editor.isMenuOpen', false);
-                const choice = await core.confirm({
-                  icon: faTrash,
-                  title: 'Are you sure ?',
-                  message: 'Are you sure you want to trash this note ?',
-                  choices: [
-                    {
-                      label: 'Cancel',
-                    },
-                    {
-                      label: 'Confirm',
-                    }
-                  ],
-                });
-                if (choice === 'Confirm') {
-                  core.trashNote(note.identifier)
-                }
+          </div>
+          <div className='menu-item' onClick={async () => {
+            if (note) {
+              core.store.set('editor.isMenuOpen', false);
+              const choice = await core.confirm({
+                icon: faTrash,
+                title: 'Move to trash',
+                message: 'Are you sure you want to trash this note ?',
+                choices: [
+                  {
+                    label: 'Cancel',
+                  },
+                  {
+                    label: 'Confirm',
+                  }
+                ],
+              });
+              if (choice === 'Confirm') {
+                core.trashNote(note.identifier)
               }
-            }}>
-              <FontAwesomeIcon icon={faTrash} />
+            }
+          }}>
+            <FontAwesomeIcon icon={faTrash} />
               Move to trash
               </div>
-          </div>
+        </div>
+        <div className='editor-footer'>
           <div className='toolbar-button' onClick={() => {
             core.store.set('editor.isMenuOpen', (isOpen: boolean) => {
               if (isOpen) {
@@ -314,7 +354,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
-              <span className='keyboard-shortcut'>Ctrl+Q</span> to stop edit
+              <span className='keyboard-shortcut'>Ctrl+E</span> to stop edit
             </div>
             <span className='keyboard-shortcut'>Ctrl+S</span> to save
             {this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' />}

@@ -23,6 +23,10 @@ class Filesystem {
     return fs.readdirSync(path);
   }
 
+  rm(path: string): boolean {
+    return fs.unlinkSync(path);
+  }
+
   isDirectory(path: string) {
     const stats = fs.statSync(path);
     return stats.isDirectory();
