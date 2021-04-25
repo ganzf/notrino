@@ -30,6 +30,7 @@ interface IUICore {
     onConfirm(choice: string): void;
     editNote(noteIdentifier: string, action: any): void;
     saveCurrentNote(): void;
+    getNoteById(noteIdentifier: string): any;
 }
 
 export default IUICore;

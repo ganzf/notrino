@@ -40,7 +40,7 @@ class Parsed extends AParsed {
       }
       const text = line.text!;
       // Typed variable
-      let match = text.match(/^\$(\w+):(\w+)\(\w+\)=(\w+)/);
+      let match = text.match(/^\$(\w+):(\w+)(\(\w+\))?=([\w\s]+)/);
       const v = new Variable();
       if (match) {
 

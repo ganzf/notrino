@@ -3,6 +3,8 @@ import { faLightbulb } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Addon, AParsed, ParsingContext } from '../types';
 import { Line, ReplacementInfo } from '../Line';
+import core from 'ui';
+import parser from '..';
 
 export class Variables implements Addon {
   execute(parsed: AParsed, context: ParsingContext): void {
@@ -21,14 +23,38 @@ export class Variables implements Addon {
     let text = line.text!;
     let idx = 0;
     while (idx < text.length && idx >= 0) {
+      let scope = parsed.variables;
       const substr = text.substr(idx, text.length - idx);
-      const match = substr.match(/^\$(\w+)/);
+      const match = substr.match(/^\$([\w\.]+)/);
+      let varName: string = `${match && match[1]}`;
+      let scopeName = '';
 
       if (match) {
-        const isDefined = parsed.variables?.has(match[1]);
         const raw = match[0];
+
+        console.log({ raw });
+        if (raw.includes('.')) {
+          const chain = raw.replace(/^\$/, '').split('.', 2);
+          if (context.note && chain[0] && chain[0] !== context.note.identifier) {
+            const note = core.getNoteById(chain[0]);
+            if (note) {
+              // Make sure its not the same note
+              const parsed = parser.parse(note.unsavedValue || note.value);
+              const variablesOfScope = parsed.variables;
+              if (variablesOfScope) {
+                console.log('Using other scope', { variablesOfScope });
+                scope = variablesOfScope;
+                scopeName = `${chain[0]} > `;
+                varName = chain[1];
+              }
+            }
+          }
+        }
+
+        const isDefined = scope?.has(varName);
+        console.log({ isDefined, raw, varName, scope });
         if (isDefined) {
-          const variable = parsed.variables!.get(match[1]);
+          const variable = scope!.get(varName);
           line.replaceText.push({
             name: 'variable',
             addon: 'variables',
@@ -40,7 +66,12 @@ export class Variables implements Addon {
                 info.shouldReplace = true;
                 info.end = info.start + raw.length;
                 info.replaceWith = () => {
-                  return <div className='inline-var'><b>{variable.name}</b>{variable.getStringValue()}</div>;
+                  const type = variable.type?.toLowerCase() || 'string';
+                  if (type === 'string') {
+                    return <div className='inline-var'><b>{scopeName}{variable.name}</b>{variable.getStringValue()}</div>;
+                  } else if (type === 'task') {
+                    return <div className='inline-var'>[{variable.type}] - {variable.getStringValue()}</div>
+                  }
                 }
               }
               return info;

@@ -24,6 +24,7 @@ interface Props {
     isMenuOpen: boolean;
   }
   note: any;
+  global: any;
 };
 
 let id = 1;
@@ -54,7 +55,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     const editor = this.instance;
     let force = false;
     let hide = false;
-    const nextList = list.filter((l) => {
+    let nextList = list.filter((l) => {
       if (typeof (l) === 'string') {
         return l.startsWith(word);
       }
@@ -63,32 +64,70 @@ class CodeMirrorEditor extends React.Component<Props, any> {
       l.originalText = l.text;
       return word === '$' || (l.displayText && l.displayText.startsWith(word));
     });
+    if (nextList.length === 0) {
+      hide = true;
+    }
+
+    if (nextList.length === 1 && nextList[0].isScope) {
+      // example: $passwords
+      console.log({ word, first: nextList[0] });
+      if (word.endsWith('.')) {
+        nextList = ['passwords.1', 'passwords.2'];
+      }
+    }
+
     const current = editor.state.completionActive?.data?.list;
     if (current?.length !== nextList.length) {
       force = true;
     }
 
     const options = {
-      // closeCharacters: RegExp(/.*/),
+      closeCharacters: RegExp(/\s/),
       completeSingle: false,
       hint: () => {
         const from = editor.getDoc().getCursor();
-        // Compare the data from the current completion object with the new list
-        return {
-          from,
-          to: editor.getDoc().getCursor(),
-          // Need to update the completion objects with the current word value
-          list: nextList.map((item) => { 
+        let updatedList = [];
+        if (nextList.length === 1 && nextList[0].isScope) {
+          // example: $passwords
+          const cursor = editor.getCursor();
+          const wordPos = editor.findWordAt(cursor);
+          const currentWord = editor.getRange(wordPos.anchor, wordPos.head);
+
+          if (nextList.length === 1 && currentWord === nextList[0].originalText) {
+            console.log('Updating...');
+
+            // get the list of variables in the scope
+            const note: any = this.props.global?.notes?.find((note: any) => note.identifier === currentWord);
+            if (note) {
+              const parsed = parser.parse(note.unsavedValue || note.value);
+              if (parsed.variables) {
+                const scopedVariables = Object.values(parsed.variables.vars)
+                updatedList = scopedVariables.map((v) => ({ text: `.${v.name}`, displayText: `${v.name} => ${v.label}`}));
+              }
+            }
+          }
+        }
+        if (updatedList.length === 0) {
+          updatedList = nextList.map((item) => {
             const cursor = editor.getCursor();
             const wordPos = editor.findWordAt(cursor);
             const currentWord = editor.getRange(wordPos.anchor, wordPos.head);
+
             if (nextList.length === 1 && currentWord === item.originalText) {
               editor.showHint({});
               return null;
             }
             item.text = item.originalText.replace(new RegExp(`^${currentWord}`), '');
             return item;
-          }),
+          })
+        }
+
+        // Compare the data from the current completion object with the new list
+        return {
+          from,
+          to: editor.getDoc().getCursor(),
+          // Need to update the completion objects with the current word value
+          list: updatedList,
         }
       }
     };
@@ -169,7 +208,6 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             </div>
           </div>
         }
-        {this.state.autocomplete ? 'on' : 'off'}
         <CodeMirror
           editorDidMount={(editor) => {
             this.instance = editor;
@@ -205,7 +243,8 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               if (parsed.variables) {
                 const variables = Object.values(parsed.variables.vars);
                 const list = variables.map(v => ({ text: `${v.name}`, displayText: `${v.name} => ${v.getStringValue()}` }));
-                this.showAutocomplete(list, word);
+                const notes = this.props.global.notes.map((n: any) => ({ text: n.identifier, displayText: n.identifier, isScope: true }));
+                this.showAutocomplete(list.concat(notes), word);
               }
             }
 

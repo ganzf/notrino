@@ -363,6 +363,11 @@ class UICore implements IUICore {
             }
         }
     }
+
+    getNoteById(noteIdentifier: string): any {
+        const notes = this.store.get('global.notes');
+        return notes && notes.find && notes.find((n: any) => n.identifier === noteIdentifier);
+    }
 }
 
 export default UICore;
