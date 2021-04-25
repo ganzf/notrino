@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import core from 'ui';
 import { faBars, faCheck, faCogs, faEdit, faHamburger, faIdCard, faKey, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'design-system';
-import { createModuleResolutionCache } from 'typescript';
+import parser from 'ui/modules/parser';
 
 interface Props {
   editor: {
@@ -50,48 +50,54 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     localStorage.setItem('note', JSON.stringify(saveObject));
   }
 
-  listVariables() {
+  showAutocomplete(list: string[] | any[], word: string = '') {
     const editor = this.instance;
-    const doc = editor.getDoc();
-    const variables: any[] = [];
-    doc.eachLine((line: any) => {
-      const { text } = line;
-      // Typed variable
-      let match = text.match(/^\$(\w+):\w+\(\w+\)=(\w+)/);
-      if (match) {
-        variables.push({
-          text: match[1],
-          displayText: `${match[1]} (=${match[2]})`,
-        })
+    let force = false;
+    let hide = false;
+    const nextList = list.filter((l) => {
+      if (typeof (l) === 'string') {
+        return l.startsWith(word);
       }
-      // Untyped (string) variable
-      match = text.match(/^\$(\w+)=(\w+)/);
-      console.log({ text, match });
-      if (match) {
-        // variables.push(match[1]);
-        variables.push({
-          text: match[1],
-          displayText: `${match[1]} (=${match[2]})`,
-        })
-      }
+      // l.text = l.text.replace(new RegExp(`^${word}`), '');
+      // l.word = word;
+      l.originalText = l.text;
+      return word === '$' || (l.displayText && l.displayText.startsWith(word));
     });
-    return [...variables, 'this'];
-  }
+    const current = editor.state.completionActive?.data?.list;
+    if (current?.length !== nextList.length) {
+      force = true;
+    }
 
-  showAutocomplete(list: string[]) {
-    const editor = this.instance;
     const options = {
-      closeCharacters: RegExp(/.*/),
+      // closeCharacters: RegExp(/.*/),
       completeSingle: false,
       hint: () => {
+        const from = editor.getDoc().getCursor();
+        // Compare the data from the current completion object with the new list
         return {
-          from: editor.getDoc().getCursor(),
+          from,
           to: editor.getDoc().getCursor(),
-          list,
+          // Need to update the completion objects with the current word value
+          list: nextList.map((item) => { 
+            const cursor = editor.getCursor();
+            const wordPos = editor.findWordAt(cursor);
+            const currentWord = editor.getRange(wordPos.anchor, wordPos.head);
+            if (nextList.length === 1 && currentWord === item.originalText) {
+              editor.showHint({});
+              return null;
+            }
+            item.text = item.originalText.replace(new RegExp(`^${currentWord}`), '');
+            return item;
+          }),
         }
       }
     };
-    editor.showHint(options);
+    if (hide && editor.state.completionActive) {
+      editor.showHint({});
+    }
+    if (!editor.state.completionActive || force) {
+      editor.showHint(options);
+    }
   }
 
   render() {
@@ -115,7 +121,6 @@ class CodeMirrorEditor extends React.Component<Props, any> {
     // @ts-ignore
     if (this.props.editor?.shouldFocus) {
       const textarea = document.querySelector('.CodeMirror textarea');
-      console.log({ textarea });
       if (textarea) {
         setTimeout(() => {
           // @ts-ignore
@@ -164,7 +169,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             </div>
           </div>
         }
-
+        {this.state.autocomplete ? 'on' : 'off'}
         <CodeMirror
           editorDidMount={(editor) => {
             this.instance = editor;
@@ -177,11 +182,32 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           }}
           onKeyUp={(editor, event) => {
             const { key } = event;
-            if (key === '$') {
-              this.showAutocomplete(this.listVariables());
-            }
             const cursor = this.instance.getDoc().getCursor();
             const line = this.instance.getDoc().getLine(cursor.line);
+
+            const isMove = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key);
+
+            // parse line + cursor to know what to show in autocomplete
+            const wordPos = this.instance.findWordAt(cursor);
+            const word = this.instance.getRange(wordPos.anchor, wordPos.head);
+            let withPrefix: any;
+            try {
+              withPrefix = this.instance.getRange({ line: wordPos.anchor.line, ch: wordPos.anchor.ch - 1 }, wordPos.head);
+              // console.log({ withPrefix, word });
+              if (withPrefix === ' $') {
+                withPrefix = '$';
+              }
+            } catch (e) {
+
+            }
+            if (!isMove && withPrefix && withPrefix.startsWith('$')) {
+              const parsed = parser.parse(this.state.value);
+              if (parsed.variables) {
+                const variables = Object.values(parsed.variables.vars);
+                const list = variables.map(v => ({ text: `${v.name}`, displayText: `${v.name} => ${v.getStringValue()}` }));
+                this.showAutocomplete(list, word);
+              }
+            }
 
             if (line.match(/^\$:Task\((T[0-9]+)\)=/)) {
               const match = line.match(/^\$:Task\((T[0-9]+)\)=/);
@@ -223,7 +249,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             lineNumbers: false,
             lineWrapping: true,
             extraKeys: {
-              "Ctrl-E": () => {
+              "Shift-Q": () => {
                 core.store?.set('editor.isEditing', false);
               },
               "Ctrl-S": () => {
@@ -337,7 +363,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
-              <span className='keyboard-shortcut'>Ctrl+E</span> to stop edit
+              <span className='keyboard-shortcut'>Shift+Q</span> to stop edit
             </div>
             <span className='keyboard-shortcut'>Ctrl+S</span> to save
             {this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' />}

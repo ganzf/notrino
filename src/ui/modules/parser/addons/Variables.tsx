@@ -60,7 +60,6 @@ export class Variables implements Addon {
       line.replaceText.forEach((rf) => {
         const info = rf.exec(currentText);
         if (info.shouldReplace) {
-          console.log({ currentText, info });
           const beforeReplacement = currentText.substr(0, info.start);
           content.push(<span>{beforeReplacement}</span>);
           content.push(info.replaceWith());
