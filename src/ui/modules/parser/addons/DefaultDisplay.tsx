@@ -26,7 +26,8 @@ export class DefaultDisplay implements Addon {
       }
       const before = line.before.map((namedFunction) => namedFunction.exec());
       const classes = line.classes;
-      let text = line.text!;
+      let text: any = line.content || line.text!;
+
       return <p className={classNames(classes)}>
         {before}
         {text}

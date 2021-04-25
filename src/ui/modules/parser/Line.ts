@@ -5,8 +5,23 @@ interface NamedFunction {
   exec: Function;
 }
 
+export class ReplacementInfo {
+  start: number = 0;
+  end: number = 0;
+  raw: string = '';
+  shouldReplace: boolean = false;
+  replaceWith: Function = () => null;
+}
+
+interface ReplacerFunction {
+  name: string;
+  addon?: string;
+  exec: (finalText: string) => ReplacementInfo;
+}
+
 export class Line {
-  text: string | null;
+  text: string | null; // simple text
+  content?: any; // JSX display
   nbr: number = -1;
   display: Function;
   printable: boolean = true;
@@ -26,10 +41,15 @@ export class Line {
   // text (actual content)
   gutter: NamedFunction[] = [];
   before: NamedFunction[] = [];
+  replaceText: ReplacerFunction[] = [];
 
   constructor(text: string | null) {
     this.text = text;
     this.display = () => this.printable ? text : null;
+  }
+
+  getContent(): any {
+    return this.content || this.text;
   }
 
   isEmpty(): boolean {

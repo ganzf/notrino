@@ -5,6 +5,7 @@ import { InlineTags } from "./addons/InlineTags";
 import { Markdown } from "./addons/Markdown";
 import { Line } from './Line';
 import { Variable, Variables } from './Variables';
+import { Variables as VariablesAddon } from './addons/Variables';
 import { Addon, AParsed, ParsingContext } from "./types";
 
 class Parsed extends AParsed {
@@ -14,6 +15,7 @@ class Parsed extends AParsed {
     new Markdown(),
     new InlineTags(),
     new CommentBasedContext(),
+    new VariablesAddon(),
     new DefaultDisplay(),
   ];
 
@@ -59,7 +61,7 @@ class Parsed extends AParsed {
       }
 
       // Untyped (string) variable
-      match = text.match(/^\$(\w+)=(\w+)/);
+      match = text.match(/^\$(\w+)=(.*)$/);
       if (match) {
         if (this.variables === null) {
           this.variables = new Variables();

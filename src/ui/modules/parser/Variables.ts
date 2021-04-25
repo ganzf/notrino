@@ -22,8 +22,8 @@ export class Variable {
   isReference: boolean = false;
   reference: Reference | null = null;
 
-  getStringValue(): string | null {
-    return this.label;
+  getStringValue(): string {
+    return this.label || '';
   }
 }
 
@@ -40,5 +40,9 @@ export class Variables {
 
   add(v: Variable) {
     this.vars[v.name] = v;
+  }
+
+  get(name: string): Variable {
+    return this.vars[name];
   }
 }

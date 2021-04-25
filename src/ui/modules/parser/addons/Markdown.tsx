@@ -17,14 +17,14 @@ export class Markdown implements Addon {
       const count = match[1].length;
       line.text = text.replace(/\#+/, '');
       let content: any = null;
-      if (count === 1) { content = <h1>{line.text}</h1>; }
-      if (count === 2) { content = <h2>{line.text}</h2>; }
-      if (count === 3) { content = <h3>{line.text}</h3>; }
-      if (count === 4) { content = <h4>{line.text}</h4>; }
-      if (count > 4) { content = <h4>{line.text}</h4>; }
+      if (count === 1) { content = () => <h1>{line.getContent()}</h1>; }
+      if (count === 2) { content = () => <h2>{line.getContent()}</h2>; }
+      if (count === 3) { content = () => <h3>{line.getContent()}</h3>; }
+      if (count === 4) { content = () => <h4>{line.getContent()}</h4>; }
+      if (count > 4) { content = () => <h4>{line.getContent()}</h4>; }
       line.printable = true;
       line.useDefaultDisplay = false;
-      line.display = () => content;
+      line.display = () => content();
       return;
     }
 
