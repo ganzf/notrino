@@ -23,6 +23,12 @@ class NoteViewer extends React.Component<Props> {
   render() {
     const width = 50;
     const { note } = this.props;
+
+    // @ts-ignore
+    if (this.props.viewer?.shouldRefresh) {
+      core.store.set('viewer.shouldRefresh', false);
+    }
+
     if (!note) {
       return null;
     }
@@ -153,6 +159,7 @@ const mapStateToProps = (state: any) => {
     notes,
     editor,
     global: state.global,
+    viewer: state.global.viewer,
     mode: editor?.mode,
   }
 };

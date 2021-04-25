@@ -1,6 +1,7 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
+import core from 'ui';
 import { Line } from '../Line';
 import { Addon, AParsed, ParsingContext } from '../types';
 
@@ -17,8 +18,25 @@ export class Markdown implements Addon {
       const count = match[1].length;
       line.text = text.replace(/\#+/, '');
       let content: any = null;
+      // FIXME: Need to improve edit note api to support tags inside titles etc...
+      let onClick = () => {
+        if (line.inlineTags.collapsed && context.note) {
+          console.log('Line is collapsed');
+          core.editNote(context.note?.identifier, {
+            action: 'REMOVE_INLINE_TAG',
+            tagValue: 'collapsed',
+            lineNbr: line.nbr,
+          })
+        } else if (!line.inlineTags.collapsed && context.note) {
+          core.editNote(context.note?.identifier, {
+            action: 'ADD_INLINE_TAG',
+            tagValue: 'collapsed',
+            lineNbr: line.nbr,
+          })
+        }
+      };
       if (count === 1) { content = () => <h1>{line.getContent()}</h1>; }
-      if (count === 2) { content = () => <h2>{line.getContent()}</h2>; }
+      if (count === 2) { content = () => <h2>{line.getContent()}</h2> ; }
       if (count === 3) { content = () => <h3>{line.getContent()}</h3>; }
       if (count === 4) { content = () => <h4>{line.getContent()}</h4>; }
       if (count > 4) { content = () => <h4>{line.getContent()}</h4>; }
