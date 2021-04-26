@@ -1,8 +1,8 @@
 {
   "name": "notrino",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "Felix Ganz",
-  "description": "A note app with extra features",
+  "description": "A note app with IDE features",
   "productName": "Notrino",
   "main": "src/app/build/app/main.js",
   "dependencies": {
