@@ -1,6 +1,6 @@
 {
   "name": "notrino",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Felix Ganz",
   "description": "A note app with IDE features",
   "productName": "Notrino",
@@ -90,6 +90,7 @@
     "ci:package-for-windows": "electron-builder build --win -c.extraMetadata.main=build/electron/main.js --publish never",
     "ci:package-for-linux": "echo NOT_IMPLEMENTED",
     "ci:package-for-macos": "electron-builder build --mac -c.extraMetadata.main=build/electron/app/main.js --publish never",
+    "ci:package-for-macos-sillicon": "electron-builder build --mac --arm64 -c.extraMetadata.main=build/electron/app/main.js --publish never",
     "check": "yarn dev:lint && yarn test",
     "release": "yarn build && yarn compile-app && yarn build-electron && yarn package",
     "clean": "rm -rf build && rm -rf src/app/build && rm -rf dist && rm -rf coverage",
@@ -120,7 +121,7 @@
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
     "electron": "^11.0.3",
-    "electron-builder": "^22.8.1",
+    "electron-builder": "^22.11.6",
     "husky": "^4.3.5",
     "mkdirp": "^1.0.4"
   },

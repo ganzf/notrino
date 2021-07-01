@@ -11,6 +11,7 @@ import core from 'ui';
 import { faBars, faCheck, faCogs, faEdit, faHamburger, faIdCard, faKey, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'design-system';
 import parser from 'ui/modules/parser';
+import EditorJS from '@editorjs/editorjs';
 
 interface Props {
   editor: {
@@ -102,7 +103,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
               const parsed = parser.parse(note.unsavedValue || note.value);
               if (parsed.variables) {
                 const scopedVariables = Object.values(parsed.variables.vars)
-                updatedList = scopedVariables.map((v) => ({ text: `.${v.name}`, displayText: `${v.name} => ${v.label}`}));
+                updatedList = scopedVariables.map((v) => ({ text: `.${v.name}`, displayText: `${v.name} => ${v.label}` }));
               }
             }
           }
@@ -288,21 +289,11 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             lineNumbers: false,
             lineWrapping: true,
             extraKeys: {
-              "Shift-Q": () => {
+              "Ctrl-Q": () => {
                 core.store?.set('editor.isEditing', false);
               },
               "Ctrl-S": () => {
-                // trigger a save
-                if (note) {
-                  core.saveNote({
-                    identifier: note.identifier,
-                    value: this.state.value,
-                    title: note.title,
-                    saveDate: new Date(),
-                  });
-                } else {
-                  console.warn(`Could not save note, note not found. (identifier: ${this.props.editor?.current})`);
-                }
+                this.saveNote(note);
               }
             }
           }}
@@ -332,7 +323,7 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             core.store.set('editor.isMenuOpen', false);
           }}>
             <FontAwesomeIcon icon={faCogs} />
-              Options
+            Options
           </div>
           <div className='menu-item' onClick={async () => {
             if (note) {
@@ -356,8 +347,8 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             }
           }}>
             <FontAwesomeIcon icon={faTrash} />
-              Move to trash
-              </div>
+            Move to trash
+          </div>
         </div>
         <div className='editor-footer'>
           <div className='toolbar-button' onClick={() => {
@@ -401,16 +392,34 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             &nbsp;&nbsp;<b>{note?.title}</b>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
-              <span className='keyboard-shortcut'>Shift+Q</span> to stop edit
+            <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }} >
+              <span onClick={() => {
+                core.store?.set('editor.isEditing', false);
+              }} className='keyboard-shortcut'>Ctrl+Q</span> to stop edit
             </div>
-            <span className='keyboard-shortcut'>Ctrl+S</span> to save
+            <span onClick={() => {
+              this.saveNote(note);
+            }} className='keyboard-shortcut'>Ctrl+S</span> to save
             {this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' />}
             {!this.props.editor?.isSaving && this.props.editor?.justSaved && <FontAwesomeIcon icon={faCheck} color='green' />}
           </div>
         </div>
       </div >
     )
+  }
+
+  saveNote(note: any) {
+    // trigger a save
+    if (note) {
+      core.saveNote({
+        identifier: note.identifier,
+        value: this.state.value,
+        title: note.title,
+        saveDate: new Date(),
+      });
+    } else {
+      console.warn(`Could not save note, note not found. (identifier: ${this.props.editor?.current})`);
+    }
   }
 
   updateNote(value: string) {

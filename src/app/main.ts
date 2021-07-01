@@ -10,7 +10,11 @@ export const core: ICore = new Core();
 // TODO: Comment me before release !!
 const ELECTRON_START_URL = 'http://localhost:4001';
 
-app.on('ready', () => {
+function openWindow(): boolean {
+    if (core.isWindowActive()) {
+        return false;
+    }
+
     const startUrl = ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '../../index.html'),
         protocol: 'file:',
@@ -30,10 +34,25 @@ app.on('ready', () => {
     win.loadURL(startUrl);
     // TODO: Comment me before release !!
     win.webContents.openDevTools();
+    core.setWindowStatus('active');
+}
+
+app.on('ready', () => {
+    console.log('Received event ready')
+    openWindow();
+});
+
+app.on('activate', function () {
+    console.log('Received event activate');
+    openWindow();
 });
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit();
+        console.log('Real quit')
+    } else {
+        console.log('Fake quit')
+        core.setWindowStatus('waiting-activation');
     }
 });

@@ -6,6 +6,8 @@ interface ICore {
     createNewNote(): NewNoteInfo;
     setUiChannel(channel: IChannel): void;
     onSaveNote(saveNote: SaveNote): boolean;
+    setWindowStatus(status: 'waiting-activation' | 'active'): void;
+    isWindowActive(): boolean;
 }
 
 export default ICore;
