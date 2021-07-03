@@ -7,9 +7,8 @@ import * as url from 'url';
 export let win: BrowserWindow;
 export const core: ICore = new Core();
 
-// TODO: Comment me before release !!
-// const ELECTRON_START_URL = 'http://localhost:4001';
-const ELECTRON_START_URL: any = undefined;
+const isDev = false;
+const ELECTRON_START_URL = isDev ? 'http://localhost:4001' : undefined;
 
 function openWindow(): boolean {
     if (core.isWindowActive()) {

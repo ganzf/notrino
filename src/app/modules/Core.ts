@@ -29,7 +29,9 @@ class Core implements ICore {
     }
 
     onInit() {
-        this.setUiChannel(new UIChannel());
+        if (!this.uiChannel) {
+            this.setUiChannel(new UIChannel());
+        }
     }
 
     setWindowStatus(status: 'waiting-activation') {
