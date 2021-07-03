@@ -8,7 +8,8 @@ export let win: BrowserWindow;
 export const core: ICore = new Core();
 
 // TODO: Comment me before release !!
-const ELECTRON_START_URL = 'http://localhost:4001';
+// const ELECTRON_START_URL = 'http://localhost:4001';
+const ELECTRON_START_URL: any = undefined;
 
 app.on('ready', () => {
     const startUrl = ELECTRON_START_URL || url.format({
@@ -30,10 +31,21 @@ app.on('ready', () => {
     win.loadURL(startUrl);
     // TODO: Comment me before release !!
     win.webContents.openDevTools();
+    core.setWindowStatus('active');
+}
+
+app.on('ready', () => {
+    openWindow();
+});
+
+app.on('activate', function () {
+    openWindow();
 });
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         app.quit();
+    } else {
+        core.setWindowStatus('waiting-activation');
     }
 });

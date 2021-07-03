@@ -288,7 +288,11 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             lineNumbers: false,
             lineWrapping: true,
             extraKeys: {
+<<<<<<< Updated upstream
               "Shift-Q": () => {
+=======
+              "Ctrl-W": () => {
+>>>>>>> Stashed changes
                 core.store?.set('editor.isEditing', false);
               },
               "Ctrl-S": () => {
@@ -401,8 +405,10 @@ class CodeMirrorEditor extends React.Component<Props, any> {
             &nbsp;&nbsp;<b>{note?.title}</b>
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }}>
-              <span className='keyboard-shortcut'>Shift+Q</span> to stop edit
+            <div style={{ display: 'flex', alignItems: 'center', marginRight: '5px' }} >
+              <span onClick={() => {
+                core.store?.set('editor.isEditing', false);
+              }} className='keyboard-shortcut'>Ctrl+W</span> to stop edit
             </div>
             <span className='keyboard-shortcut'>Ctrl+S</span> to save
             {this.props.editor?.isSaving && <FontAwesomeIcon icon={faSpinner} spin color='white' />}
