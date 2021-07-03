@@ -11,7 +11,11 @@ export const core: ICore = new Core();
 // const ELECTRON_START_URL = 'http://localhost:4001';
 const ELECTRON_START_URL: any = undefined;
 
-app.on('ready', () => {
+function openWindow(): boolean {
+    if (core.isWindowActive()) {
+        return false;
+    }
+
     const startUrl = ELECTRON_START_URL || url.format({
         pathname: path.join(__dirname, '../../index.html'),
         protocol: 'file:',

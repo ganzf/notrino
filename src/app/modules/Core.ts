@@ -15,6 +15,7 @@ class Core implements ICore {
     uiChannel: IChannel;
     dataDirectory: string;
     maxNoteId: number = 1;
+    windowStatus: 'waiting-activation' | 'active';
 
     constructor() {
         this.dataDirectory = path.join(app.getPath('userData'), 'UserNotes');
@@ -29,6 +30,14 @@ class Core implements ICore {
 
     onInit() {
         this.setUiChannel(new UIChannel());
+    }
+
+    setWindowStatus(status: 'waiting-activation') {
+        this.windowStatus = status;
+    }
+
+    isWindowActive(): boolean {
+        return this.windowStatus === 'active';
     }
 
     setUiChannel(channel: IChannel) {
