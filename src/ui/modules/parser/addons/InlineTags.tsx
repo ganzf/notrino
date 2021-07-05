@@ -57,8 +57,15 @@ export class InlineTags implements Addon {
             </span>,
           })
         }
+        Object.keys(lineTags).forEach(tag => {
+          if (!['ok', 'important', 'critique', 'idee', 'design'].includes(tag)) {
+            line.before.push({
+              name: 'inline-tag',
+              exec: () => <span className='inline-tag'>{tag}</span>
+            })
+          }
+        })
       }
-
       line.text = line.text!.replace(/^\+?\s*?\([^\s]+\)/, '');
     }
   }

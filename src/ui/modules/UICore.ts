@@ -23,6 +23,7 @@ import ReduxStore from './ReduxStore';
 import { CreateNewNote, NewNoteInfo } from 'app/include/events/Notes';
 import core from 'ui';
 import parser from 'ui/modules/parser';
+import IChannelMessage from 'common/IChannelMessage';
 
 class UICore implements IUICore {
     // Used to send and receive events from app
@@ -37,6 +38,14 @@ class UICore implements IUICore {
         this.store = {};
         // @ts-ignore
         this.appChannel = null;
+    }
+
+    onNotification(notification: IChannelMessage): void {
+        console.log('On notification', { notification });
+        if (notification.name === 'QuickThoughtRequested') {
+            this.store.set('showQuickThoughtEditor', true);
+            document.getElementById("quick-thought-editor-input")?.focus();
+        }
     }
 
     async init() {

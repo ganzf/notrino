@@ -8,6 +8,9 @@ interface ICore {
     onSaveNote(saveNote: SaveNote): boolean;
     setWindowStatus(status: 'waiting-activation' | 'active'): void;
     isWindowActive(): boolean;
+    
+    // Opens a quick write memo that will be debriefed at the end of the day :) 
+    onQuickThought(): void;
 }
 
 export default ICore;

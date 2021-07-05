@@ -1,4 +1,5 @@
 import IChannel from 'common/IChannel';
+import IChannelMessage from 'common/IChannelMessage';
 import IStore from 'ui/include/IStore';
 import { NewNoteInfo } from 'ui/protocol/events/Notes';
 
@@ -31,6 +32,8 @@ interface IUICore {
     editNote(noteIdentifier: string, action: any): void;
     saveCurrentNote(): void;
     getNoteById(noteIdentifier: string): any;
+    
+    onNotification(notification: IChannelMessage): void;
 }
 
 export default IUICore;

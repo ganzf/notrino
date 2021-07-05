@@ -1,8 +1,9 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { nextTick } from 'process';
 import React from 'react';
 import core from 'ui';
-import { Line } from '../Line';
+import { Line, ReplacementInfo } from '../Line';
 import { Addon, AParsed, ParsingContext } from '../types';
 
 export class Markdown implements Addon {
@@ -63,6 +64,62 @@ export class Markdown implements Addon {
         addon: 'markdown',
         exec: () => <FontAwesomeIcon icon={faCircle} />,
       })
+    }
+
+    const boldMatch = text.matchAll(/\*\*([^\*]+)\*\*/gi);
+    if (boldMatch) {
+      // iterate over all bold match
+      let next = boldMatch.next();
+      while (!next.done) {
+        const raw = next.value[0];
+        const match = next.value;
+        line.replaceText.push({
+          name: 'bold',
+          addon: 'Markdown',
+          exec: (finalText: string) => { 
+            const info = new ReplacementInfo();
+            if (finalText.includes(raw)) {
+              info.start = finalText.indexOf(raw);
+              info.raw = raw;
+              info.shouldReplace = true;
+              info.end = info.start + raw.length;
+              info.replaceWith = () => {
+                return <b>{match[1]}</b>
+              }
+            }
+            return info;
+          }
+        });
+        next = boldMatch.next();
+      }
+    }
+
+    const codematch = text.matchAll(/`([^`]+)`/gi);
+    if (codematch) {
+      // iterate over all bold match
+      let next = codematch.next();
+      while (!next.done) {
+        const raw = next.value[0];
+        const match = next.value;
+        line.replaceText.push({
+          name: 'pre-code',
+          addon: 'Markdown',
+          exec: (finalText: string) => { 
+            const info = new ReplacementInfo();
+            if (finalText.includes(raw)) {
+              info.start = finalText.indexOf(raw);
+              info.raw = raw;
+              info.shouldReplace = true;
+              info.end = info.start + raw.length;
+              info.replaceWith = () => {
+                return <pre className='inline-code'><code>{match[1]}</code></pre>
+              }
+            }
+            return info;
+          }
+        });
+        next = boldMatch.next();
+      }
     }
   }
 }

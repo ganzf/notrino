@@ -1,5 +1,6 @@
 import ARequest from "../../../common/ARequest";
 import AResponse from "../../../common/AResponse";
+import IChannelMessage from "../../../common/IChannelMessage";
 
 class UICoreIsReady extends ARequest {
   name: string = "UICoreIsReady";
@@ -50,10 +51,19 @@ class FileOpenedByUser extends AResponse {
   }
 }
 
+// Maybe add a type for notifications from backend ?
+class QuickThoughtRequested implements IChannelMessage {
+  name: string = "QuickThoughtRequested";
+  payload: any = {};
+  allowSendByApp = true;
+  allowSendByUI = false;
+}
+
 export {
   // Requests
   UICoreIsReady,
   OpenFileExplorer,
+  QuickThoughtRequested,
 
   // Responses
   AppCoreInitStarted,

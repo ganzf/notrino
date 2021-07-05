@@ -1,9 +1,9 @@
-import { IpcMain, ipcMain } from "electron";
+import { IpcMain, ipcMain, webContents } from "electron";
 import { CreateNewNote } from '../include/events/Notes';
 import IChannel from "../../common/IChannel";
 import IChannelCallback from "../../common/IChannelCallback";
 import IChannelMessage from "../../common/IChannelMessage";
-import { core } from "../main";
+import { core, win } from "../main";
 
 class UIChannel implements IChannel {
   ipc: IpcMain = ipcMain;
@@ -16,7 +16,11 @@ class UIChannel implements IChannel {
   }
   
   send(event: IChannelMessage): boolean {
-    throw new Error('Cannot send spontaneous message from app');
+    if (event.allowSendByApp) {
+      win.webContents.send('__app-notification__', JSON.stringify({ event }));
+      return true;
+    }
+    return false;
   }
   
   on(eventName: string, callback: IChannelCallback): boolean {

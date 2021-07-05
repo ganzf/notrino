@@ -1,4 +1,3 @@
-const path = require('path');
 import { app, shell, dialog } from 'electron';
 import { win } from '../main';
 import ICore from '../include/ICore';
@@ -7,9 +6,10 @@ import { DeleteTrashedNote, NewNoteInfo, NoteIdentifierChanged, NoteLoaded, Note
 import Events from '../include/events';
 import Filesystem from '../../lib/FileSystem';
 import UIChannel from './UIChannel';
-import { AppCoreInitStepDetails, OpenFileExplorer, UICoreIsReady } from '../include/events/App';
+import { AppCoreInitStepDetails, OpenFileExplorer, QuickThoughtRequested, UICoreIsReady } from '../include/events/App';
 import { AppCoreInitStarted } from '../include/events/App';
 import { AppCoreIsReady } from '../include/events/App';
+const path = require('path');
 
 class Core implements ICore {
     uiChannel: IChannel;
@@ -280,6 +280,11 @@ class Core implements ICore {
         }
         const noteLoaded = new NoteLoaded(noteData);
         return noteLoaded;
+    }
+
+    onQuickThought(): void {
+        const quickThoughtRequested = new QuickThoughtRequested();
+        this.uiChannel.send(quickThoughtRequested);
     }
 }
 

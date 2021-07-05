@@ -7,6 +7,7 @@ import { Line } from './Line';
 import { Variable, Variables } from './Variables';
 import { Variables as VariablesAddon } from './addons/Variables';
 import { Addon, AParsed, ParsingContext } from "./types";
+import { types } from "util";
 
 class Parsed extends AParsed {
   lines: Line[] = [];
@@ -43,7 +44,6 @@ class Parsed extends AParsed {
       let match = text.match(/^\$(\w+):(\w+)(\(\w+\))?=([\w\s]+)/);
       const v = new Variable();
       if (match) {
-
         if (this.variables === null) {
           this.variables = new Variables();
         }
@@ -53,6 +53,26 @@ class Parsed extends AParsed {
         v.type = match[2];
         v.params = match[3];
         v.label = match[4];
+        line.printable = false;
+        line.type = 'variableDefinition';
+        if (!this.variables.has(v.name)) {
+          this.variables.add(v);
+        }
+      }
+
+      // Implicit string variable
+      match = text.match(/^\$(\w+)\((.*)\)=(.*)$/)
+      if (match) {
+        if (this.variables === null) {
+          this.variables = new Variables();
+        }
+
+        const v = new Variable();
+        v.name = match[1];
+        v.line = nbr;
+        v.label = match[3];
+        v.params = match[2];
+        v.type = 'string' ;
         line.printable = false;
         line.type = 'variableDefinition';
         if (!this.variables.has(v.name)) {
@@ -71,6 +91,7 @@ class Parsed extends AParsed {
         v.name = match[1];
         v.label = match[2];
         v.line = nbr;
+        v.type = 'string';
         line.printable = false;
         line.type = 'variableDefinition';
         if (!this.variables.has(v.name)) {

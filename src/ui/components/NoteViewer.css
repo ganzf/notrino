@@ -131,3 +131,18 @@
   color: grey;
   margin-right: 8px;
 }
+
+.note-viewer-content pre.inline-code {
+  background: #121212;
+  border-radius: 4px;
+  color: ghostwhite;
+  display: inline-flex;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-bottom: unset;
+}
+
+.note-viewer-content b {
+  margin-left: 2px;
+  margin-right: 2px;
+}

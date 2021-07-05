@@ -68,7 +68,36 @@ export class Variables implements Addon {
                 info.replaceWith = () => {
                   const type = variable.type?.toLowerCase() || 'string';
                   if (type === 'string') {
-                    return <div className='inline-var'><b>{scopeName}{variable.name}</b>{variable.getStringValue()}</div>;
+                    const style: any = {};
+                    if (variable.params) {
+                      const color = variable.params.split(',').find((option) => {
+                        if (['blue', 'red', 'green', 'yellow', 'orange', 'crimson', 'purple', 'rose'].includes(option)) {
+                          return true;
+                        }
+                        return false;
+                      })
+                      const size = variable.params.split(',').find((option) => {
+                        if (option.match(/^[0-9]+px$/)) {
+                          return true;
+                        }
+                        return false;
+                      });
+                      if (color) {
+                        style.color = color;
+                      }
+                      if (size) {
+                        style.fontSize = size;
+                      }
+                      if (variable.params.split(',').find((option) => {
+                        if (option === 'bold') {
+                          return true;
+                        }
+                        return false;
+                      })) {
+                        style.fontWeight = '600';
+                      }
+                    }
+                    return <div style={style} className='inline-var'><b>{scopeName}{variable.name}</b>{variable.getStringValue()}</div>;
                   } else if (type === 'task') {
                     return <div className='inline-var'>[{variable.type}] - {variable.getStringValue()}</div>
                   }

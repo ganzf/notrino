@@ -249,3 +249,60 @@ body {
   height: calc(100% - 52px);
   overflow-y: scroll;
 }
+
+.quick-thought-editor-container {
+  z-index: 100;
+  background: rgba(13, 13, 13, 0.75);
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.quick-thought-editor-container input {
+  height: 48px;
+  font-size: 28px;
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  min-width: 100%;
+}
+
+.quick-thought-editor-container input:focus {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 3pt 2pt dodgerblue;
+}
+
+.quick-thought-editor-container .quick-thought-editor-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+}
+
+.quick-thought-editor-container .quick-thought-editor-label .fa:hover,
+.quick-thought-editor-container .quick-thought-editor-label svg:hover {
+  color: grey;
+  cursor: pointer;
+}
+
+.resizeable-textarea {
+  box-sizing: border-box;
+	border: none;
+	border-radius: 3px;
+	resize: none;
+	font-size: 20px;
+	line-height: 24px;
+	overflow: auto;
+	height: auto;
+	padding: 8px;
+	box-shadow: 0px 4px 10px -8px black;
+  min-width: 50%;
+}
