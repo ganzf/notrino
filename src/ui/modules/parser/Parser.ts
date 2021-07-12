@@ -6,6 +6,7 @@ import { Markdown } from "./addons/Markdown";
 import { Line } from './Line';
 import { Variable, Variables } from './Variables';
 import { Variables as VariablesAddon } from './addons/Variables';
+import { Functions as FunctionsAddon } from './addons/Functions';
 import { Addon, AParsed, ParsingContext } from "./types";
 import { types } from "util";
 
@@ -18,6 +19,7 @@ class Parsed extends AParsed {
     new CommentBasedContext(),
     new VariablesAddon(),
     new DefaultDisplay(),
+    new FunctionsAddon(),
   ];
 
   constructor(lines: Line[], context?: ParsingContext) {

@@ -46,8 +46,6 @@ class ReduxStore implements IStore {
     window.store = store;
     const { dispatch, getState } = store;
     this.store = store;
-    // @ts-ignore
-    window.store = store;
     this.dispatch = dispatch;
     this.getState = getState;
   }

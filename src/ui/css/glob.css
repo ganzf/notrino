@@ -276,8 +276,7 @@ body {
 }
 
 .quick-thought-editor-container input:focus {
-  outline: 2px solid transparent;
-  box-shadow: 0 0 3pt 2pt dodgerblue;
+
 }
 
 .quick-thought-editor-container .quick-thought-editor-label {
@@ -305,4 +304,9 @@ body {
 	padding: 8px;
 	box-shadow: 0px 4px 10px -8px black;
   min-width: 50%;
+}
+
+.resizeable-textarea:focus {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 3pt 2pt dodgerblue;
 }
